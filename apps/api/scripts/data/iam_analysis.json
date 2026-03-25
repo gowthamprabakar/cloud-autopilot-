@@ -1,0 +1,159 @@
+{
+  "generated_at": "2026-03-16T00:00:00Z",
+  "workspace_id": "7ed72074-8a71-4062-9a3c-55fc195dd878",
+  "account_id": "123456789012",
+  "entities": [
+    {
+      "entity_arn": "arn:aws:iam::123456789012:user/admin-user",
+      "entity_type": "user",
+      "entity_name": "admin-user",
+      "stated_permissions": ["AdministratorAccess"],
+      "effective_permissions": ["*:*"],
+      "unused_permissions": ["ec2:CreateVpc","rds:CreateDBCluster","eks:CreateCluster","glacier:CreateVault","workspaces:CreateWorkspaces","redshift:CreateCluster","cloudhsm:CreateHsm","datasync:CreateTask","fsx:CreateFileSystem","waf:CreateWebACL","shield:CreateProtection","macie2:CreateClassificationJob","detective:CreateGraph","guardduty:CreateDetector","securityhub:CreateHub","inspector2:Enable","config:PutConfigurationRecorder","cloudformation:CreateStack","codeartifact:CreateDomain","codecommit:CreateRepository","codepipeline:CreatePipeline","codebuild:CreateProject","codestar:CreateProject","cloud9:CreateEnvironmentEC2","sagemaker:CreateNotebookInstance","glue:CreateDatabase","athena:CreateDataCatalog","kinesis:CreateStream","firehose:CreateDeliveryStream","msk:CreateCluster","elasticache:CreateCacheCluster","dax:CreateCluster","neptune:CreateDBCluster","docdb:CreateDBCluster","timestream:CreateDatabase","qldb:CreateLedger","keyspaces:CreateKeyspace","memorydb:CreateCluster","iottwinmaker:CreateWorkspace","iotsitewise:CreatePortal","iotanalytics:CreateChannel","iotevents:CreateDetectorModel","greengrass:CreateGroup","robomaker:CreateRobotApplication","braket:CreateJob","lookoutvision:CreateProject","panorama:CreatePackage","rekognition:CreateCollection","comprehend:CreateDocumentClassifier","kendra:CreateIndex","personalize:CreateDataset","forecast:CreateDataset","polly:PutLexicon","transcribe:CreateVocabulary","translate:CreateParallelData","textract:StartDocumentAnalysis","healthlake:CreateFHIRDatastore","omics:CreateReferenceStore","appflow:CreateFlow","eventbridge:CreateEventBus","scheduler:CreateSchedule","pipes:CreatePipe","stepfunctions:CreateStateMachine","swf:RegisterDomain","mq:CreateBroker","connect:CreateInstance","chime:CreateAccount","pinpoint:CreateApp","ses:CreateTemplate","sns:CreateTopic","sqs:CreateQueue","mediaconvert:CreateQueue","mediapackage:CreateChannel","medialive:CreateChannel","mediastore:CreateContainer","ivs:CreateChannel","cloudsearch:CreateDomain","appstream:CreateFleet","workdocs:CreateUser","workmail:CreateOrganization","honeycode:CreateWorkbook","amplify:CreateApp","devicefarm:CreateProject","lightsail:CreateInstances"],
+      "last_used_services": ["s3", "ec2", "iam", "sts", "cloudtrail"],
+      "access_key_age_days": 187,
+      "mfa_enabled": false,
+      "console_access": true,
+      "last_console_login_days_ago": 3,
+      "last_api_call_days_ago": 0,
+      "risk_level": "CRITICAL",
+      "risk_reasons": ["NO_MFA", "ACCESS_KEY_NOT_ROTATED", "ADMIN_ACCESS", "UNUSED_PERMISSIONS"],
+      "privilege_escalation_paths": [
+        {"via": "iam:CreateRole + iam:AttachRolePolicy", "target": "AdministratorAccess"},
+        {"via": "iam:PutUserPolicy", "target": "arbitrary permissions"}
+      ],
+      "least_privilege_policy": "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Action\":[\"s3:GetObject\",\"s3:PutObject\",\"s3:ListBucket\",\"ec2:DescribeInstances\",\"iam:GetUser\",\"iam:ListUsers\",\"cloudtrail:LookupEvents\"],\"Resource\":\"*\"}]}",
+      "permission_reduction_percentage": 97.3,
+      "findings": []
+    },
+    {
+      "entity_arn": "arn:aws:iam::123456789012:user/deploy-user",
+      "entity_type": "user",
+      "entity_name": "deploy-user",
+      "stated_permissions": ["PowerUserAccess"],
+      "effective_permissions": ["*:* except iam:*"],
+      "unused_permissions": ["ec2:CreateVpnGateway","ec2:CreateCustomerGateway","rds:CreateDBParameterGroup","elasticbeanstalk:CreateApplication","opsworks:CreateStack","opsworks:CreateLayer","cloudformation:CreateChangeSet","codecommit:CreateBranch","codedeploy:CreateApplication","codebuild:CreateReport","lightsail:CreateLoadBalancer","batch:CreateComputeEnvironment","ecs:CreateCapacityProvider","eks:CreateAddon","emr:RunJobFlow","glue:CreateConnection","athena:CreateNamedQuery","kinesis:AddTagsToStream","firehose:TagDeliveryStream","msk:CreateConfiguration","elasticache:CreateCacheSubnetGroup","dax:CreateSubnetGroup","neptune:CreateDBSubnetGroup","redshift:CreateClusterParameterGroup","fsx:CreateBackup","datasync:CreateLocationS3","storagegateway:CreateGateway","transfer:CreateServer","migrationhub:CreateProgressUpdateStream","dms:CreateReplicationInstance","snowball:CreateAddress","directconnect:CreateConnection","globalaccelerator:CreateAccelerator","route53resolver:CreateResolverEndpoint","servicediscovery:CreatePrivateDnsNamespace","apigateway:CreateRestApi","appsync:CreateGraphqlApi","amplify:CreateDomain","devicefarm:CreateUpload","iot:CreateThing","iotanalytics:CreatePipeline","greengrass:CreateCoreDefinition","robomaker:CreateSimulationJob","groundtruth:CreateLabelingJob","comprehend:CreateEntityRecognizer","kendra:CreateFaq","personalize:CreateSolution","forecast:CreateForecast","polly:StartSpeechSynthesisTask","rekognition:CreateStreamProcessor","healthlake:StartFHIRImportJob","sagemaker:CreateTrainingJob"],
+      "last_used_services": ["ec2", "s3", "cloudformation", "codepipeline", "ecr"],
+      "access_key_age_days": 127,
+      "mfa_enabled": false,
+      "console_access": false,
+      "last_api_call_days_ago": 1,
+      "risk_level": "HIGH",
+      "risk_reasons": ["ACCESS_KEY_NOT_ROTATED", "NO_MFA", "UNUSED_PERMISSIONS", "POWER_USER"],
+      "privilege_escalation_paths": [],
+      "least_privilege_policy": "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Action\":[\"ec2:DescribeInstances\",\"ec2:RunInstances\",\"ec2:TerminateInstances\",\"s3:GetObject\",\"s3:PutObject\",\"cloudformation:CreateStack\",\"cloudformation:UpdateStack\",\"cloudformation:DescribeStacks\",\"codepipeline:GetPipeline\",\"codepipeline:StartPipelineExecution\",\"ecr:GetAuthorizationToken\",\"ecr:BatchGetImage\"],\"Resource\":\"*\"}]}",
+      "permission_reduction_percentage": 82.5,
+      "findings": []
+    },
+    {
+      "entity_arn": "arn:aws:iam::123456789012:user/ci-cd-user",
+      "entity_type": "user",
+      "entity_name": "ci-cd-user",
+      "stated_permissions": ["inline:CICDOverpermissioned"],
+      "effective_permissions": ["s3:*", "ec2:*", "iam:PassRole"],
+      "unused_permissions": ["ec2:CreateVpc","ec2:CreateInternetGateway","ec2:CreateNatGateway","ec2:CreateVpnConnection","ec2:CreateCustomerGateway","ec2:CreateNetworkInterface","ec2:AllocateAddress","ec2:CreateKeyPair","ec2:ImportKeyPair","s3:CreateBucket","s3:DeleteBucket","s3:PutBucketAcl","s3:PutBucketPolicy","s3:DeleteObject","s3:PutLifecycleConfiguration","s3:PutBucketReplication","s3:PutBucketCORS","s3:PutBucketWebsite","s3:PutEncryptionConfiguration"],
+      "last_used_services": ["s3", "ec2", "iam"],
+      "access_key_age_days": 45,
+      "mfa_enabled": false,
+      "console_access": true,
+      "last_api_call_days_ago": 2,
+      "risk_level": "CRITICAL",
+      "risk_reasons": ["S3_STAR_PERMISSION", "EC2_STAR_PERMISSION", "IAM_PASSROLE", "CONSOLE_ACCESS_FOR_MACHINE_USER"],
+      "privilege_escalation_paths": [
+        {"via": "iam:PassRole to prod-deploy-role (AdministratorAccess)", "target": "Full admin via role assumption"}
+      ],
+      "least_privilege_policy": "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Action\":[\"s3:GetObject\",\"s3:PutObject\",\"s3:GetBucketLocation\",\"ec2:DescribeInstances\",\"ec2:DescribeSecurityGroups\",\"iam:PassRole\"],\"Resource\":[\"arn:aws:s3:::prod-*\",\"arn:aws:s3:::prod-*/*\",\"arn:aws:ec2:*:*:instance/*\",\"arn:aws:iam::123456789012:role/prod-deploy-role\"]}]}",
+      "permission_reduction_percentage": 91.2,
+      "findings": []
+    },
+    {
+      "entity_arn": "arn:aws:iam::123456789012:user/ml-engineer-user",
+      "entity_type": "user",
+      "entity_name": "ml-engineer-user",
+      "stated_permissions": ["AmazonSageMakerFullAccess"],
+      "effective_permissions": ["sagemaker:*", "iam:PassRole", "s3:*", "ec2:*"],
+      "unused_permissions": ["sagemaker:CreateAutoMLJob","sagemaker:CreateCompilationJob","sagemaker:CreateEdgePackagingJob","sagemaker:CreateHyperParameterTuningJob","sagemaker:CreateLabelingJob","sagemaker:CreateModelQualityJobDefinition","sagemaker:CreateMonitoringSchedule","sagemaker:CreatePipelineExecution","sagemaker:CreatePresignedDomainUrl"],
+      "last_used_services": ["sagemaker", "s3"],
+      "access_key_age_days": 62,
+      "mfa_enabled": false,
+      "console_access": true,
+      "last_api_call_days_ago": 5,
+      "risk_level": "HIGH",
+      "risk_reasons": ["IAM_PASSROLE_NEVER_USED", "OVERPERMISSIONED_FOR_ROLE", "NO_MFA"],
+      "privilege_escalation_paths": [
+        {"via": "iam:PassRole to sagemaker-execution-role (has iam:CreateRole)", "target": "Privilege escalation to AdministratorAccess"}
+      ],
+      "least_privilege_policy": "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Action\":[\"sagemaker:CreateTrainingJob\",\"sagemaker:DescribeTrainingJob\",\"sagemaker:StopTrainingJob\",\"sagemaker:CreateModel\",\"sagemaker:DescribeModel\",\"s3:GetObject\",\"s3:PutObject\",\"s3:ListBucket\"],\"Resource\":[\"arn:aws:sagemaker:*:*:training-job/*\",\"arn:aws:sagemaker:*:*:model/*\",\"arn:aws:s3:::prod-ml-*\",\"arn:aws:s3:::prod-ml-*/*\"]}]}",
+      "permission_reduction_percentage": 74.3,
+      "findings": []
+    },
+    {
+      "entity_arn": "arn:aws:iam::123456789012:role/github-actions-role",
+      "entity_type": "role",
+      "entity_name": "github-actions-role",
+      "stated_permissions": [],
+      "effective_permissions": ["*:*"],
+      "trust_policy_issues": ["MISSING_OIDC_CONDITION_ANY_REPO_CAN_ASSUME"],
+      "unused_permissions": [],
+      "last_assumed_days_ago": 1,
+      "risk_level": "CRITICAL",
+      "risk_reasons": ["OIDC_MISSING_CONDITION", "ADMIN_EQUIVALENT_ACCESS", "SUPPLY_CHAIN_RISK"],
+      "privilege_escalation_paths": [
+        {"via": "Direct role assumption from any GitHub Actions workflow", "target": "prod-deploy-role (AdministratorAccess)"}
+      ],
+      "least_privilege_policy": "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Condition\":{\"StringLike\":{\"token.actions.githubusercontent.com:sub\":\"repo:YOUR_ORG/YOUR_REPO:ref:refs/heads/main\"}},\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"},\"Action\":\"sts:AssumeRoleWithWebIdentity\"}]}",
+      "permission_reduction_percentage": 0,
+      "findings": []
+    },
+    {
+      "entity_arn": "arn:aws:iam::123456789012:role/prod-ec2-instance-role",
+      "entity_type": "role",
+      "entity_name": "prod-ec2-instance-role",
+      "stated_permissions": ["inline:OverpermissionedEC2"],
+      "effective_permissions": ["s3:*", "iam:PassRole"],
+      "unused_permissions": ["s3:CreateBucket","s3:DeleteBucket","s3:PutBucketPolicy","s3:PutBucketAcl","s3:PutLifecycleConfiguration","s3:PutBucketReplication","s3:DeleteObject","iam:PassRole (never used)"],
+      "last_assumed_days_ago": 0,
+      "risk_level": "CRITICAL",
+      "risk_reasons": ["S3_STAR_PERMISSION", "IAM_PASSROLE", "ATTACHED_TO_INTERNET_FACING_EC2"],
+      "privilege_escalation_paths": [
+        {"via": "iam:PassRole to prod-deploy-role", "target": "AdministratorAccess"},
+        {"via": "s3:PutObject on prod-terraform-state", "target": "Terraform state manipulation -> infrastructure takeover"}
+      ],
+      "least_privilege_policy": "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Action\":[\"s3:GetObject\",\"s3:PutObject\"],\"Resource\":[\"arn:aws:s3:::prod-app-logs/*\",\"arn:aws:s3:::prod-static-assets/*\"]}]}",
+      "permission_reduction_percentage": 88.5,
+      "findings": []
+    },
+    {
+      "entity_arn": "arn:aws:iam::123456789012:role/sagemaker-execution-role",
+      "entity_type": "role",
+      "entity_name": "sagemaker-execution-role",
+      "stated_permissions": ["inline:PrivEscPath"],
+      "effective_permissions": ["iam:CreateRole", "iam:AttachRolePolicy", "sagemaker:*"],
+      "unused_permissions": [],
+      "last_assumed_days_ago": 2,
+      "risk_level": "CRITICAL",
+      "risk_reasons": ["IAM_CREATE_ROLE", "IAM_ATTACH_ROLE_POLICY", "PRIVILEGE_ESCALATION_PATH"],
+      "privilege_escalation_paths": [
+        {"via": "iam:CreateRole + iam:AttachRolePolicy", "target": "Create new admin role and attach AdministratorAccess policy"}
+      ],
+      "least_privilege_policy": "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Action\":[\"sagemaker:CreateTrainingJob\",\"sagemaker:DescribeTrainingJob\",\"sagemaker:CreateModel\",\"sagemaker:InvokeEndpoint\",\"s3:GetObject\",\"s3:PutObject\",\"logs:CreateLogGroup\",\"logs:PutLogEvents\"],\"Resource\":\"*\"}]}",
+      "permission_reduction_percentage": 95.1,
+      "findings": []
+    },
+    {
+      "entity_arn": "arn:aws:iam::123456789012:role/prod-deploy-role",
+      "entity_type": "role",
+      "entity_name": "prod-deploy-role",
+      "stated_permissions": ["AdministratorAccess"],
+      "effective_permissions": ["*:*"],
+      "trust_policy_issues": ["TRUSTED_BY_CICD_USER", "TRUSTED_BY_GITHUB_ACTIONS_NO_CONDITION"],
+      "last_assumed_days_ago": 1,
+      "risk_level": "CRITICAL",
+      "risk_reasons": ["ADMIN_ACCESS", "ASSUMED_BY_MULTIPLE_RISKY_PRINCIPALS", "BLAST_RADIUS_ENTIRE_ACCOUNT"],
+      "privilege_escalation_paths": [],
+      "least_privilege_policy": "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Action\":[\"cloudformation:*\",\"ec2:DescribeInstances\",\"ecs:UpdateService\",\"lambda:UpdateFunctionCode\",\"s3:GetObject\",\"s3:PutObject\"],\"Resource\":\"*\"}]}",
+      "permission_reduction_percentage": 93.7,
+      "findings": []
+    }
+  ]
+}

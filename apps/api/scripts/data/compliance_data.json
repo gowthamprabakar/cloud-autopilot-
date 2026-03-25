@@ -1,0 +1,171 @@
+{
+  "generated_at": "2026-03-16T00:00:00Z",
+  "workspace_id": "7ed72074-8a71-4062-9a3c-55fc195dd878",
+  "frameworks": {
+    "CIS_AWS_1.4": {
+      "total_controls": 58,
+      "passing": 23,
+      "failing": 31,
+      "not_applicable": 4,
+      "score_percentage": 42.6,
+      "critical_failures": [
+        {"control_id": "1.4", "title": "Ensure no 'root' user account access key exists", "severity": "critical"},
+        {"control_id": "1.5", "title": "Ensure MFA is enabled for the 'root' user account", "severity": "critical"},
+        {"control_id": "1.10", "title": "Ensure MFA is enabled for all IAM users that have console password", "severity": "high"},
+        {"control_id": "1.14", "title": "Ensure access keys are rotated every 90 days or less", "severity": "high"},
+        {"control_id": "1.16", "title": "Ensure IAM policies that allow full administrative privileges are not attached", "severity": "critical"},
+        {"control_id": "2.1.1", "title": "Ensure all S3 buckets employ encryption-at-rest", "severity": "high"},
+        {"control_id": "2.1.5", "title": "Ensure S3 bucket access control lists do not grant public access", "severity": "critical"},
+        {"control_id": "2.3.1", "title": "Ensure RDS instances are not publicly accessible", "severity": "critical"},
+        {"control_id": "3.1", "title": "Ensure CloudTrail is enabled in all regions", "severity": "critical"},
+        {"control_id": "3.2", "title": "Ensure CloudTrail log file validation is enabled", "severity": "medium"},
+        {"control_id": "3.9", "title": "Ensure VPC flow logging is enabled in all VPCs", "severity": "high"},
+        {"control_id": "4.1", "title": "Ensure unauthorized API calls alarm exists", "severity": "medium"},
+        {"control_id": "4.2", "title": "Ensure console login without MFA alarm exists", "severity": "medium"},
+        {"control_id": "4.3", "title": "Ensure root account usage alarm exists", "severity": "high"},
+        {"control_id": "5.2", "title": "Ensure no security groups allow ingress from 0.0.0.0/0 to port 22", "severity": "high"},
+        {"control_id": "5.4", "title": "Ensure the default security group restricts all traffic", "severity": "medium"}
+      ],
+      "passing_controls": [
+        {"control_id": "1.1", "title": "Maintain current contact details"},
+        {"control_id": "1.2", "title": "Ensure security contact information is registered"},
+        {"control_id": "1.3", "title": "Ensure security questions are registered in the AWS account"},
+        {"control_id": "1.11", "title": "Do not setup access keys during initial user setup for all IAM users"},
+        {"control_id": "2.1.2", "title": "Ensure S3 Bucket Policy is set to deny HTTP requests"},
+        {"control_id": "2.2.1", "title": "Ensure EBS volume encryption is enabled"},
+        {"control_id": "3.3", "title": "Ensure CloudTrail stores logs in S3 bucket"},
+        {"control_id": "4.13", "title": "Ensure a log metric filter and alarm exist for route table changes"},
+        {"control_id": "5.1", "title": "Ensure routing tables for VPC peering are least access"}
+      ]
+    },
+    "PCI_DSS_3.2.1": {
+      "total_controls": 264,
+      "passing": 180,
+      "failing": 72,
+      "not_applicable": 12,
+      "score_percentage": 71.4,
+      "critical_failures": [
+        {"control_id": "1.2.1", "title": "Restrict inbound and outbound traffic to that which is necessary", "severity": "critical"},
+        {"control_id": "1.3", "title": "Prohibit direct public access between the Internet and any component in the cardholder data environment", "severity": "critical"},
+        {"control_id": "3.4", "title": "Render PAN unreadable anywhere it is stored", "severity": "critical"},
+        {"control_id": "3.5", "title": "Protect any keys used to secure stored cardholder data against disclosure and misuse", "severity": "critical"},
+        {"control_id": "6.3.1", "title": "Address common security vulnerabilities in software-development processes", "severity": "high"},
+        {"control_id": "6.3.3", "title": "All system components are protected from known vulnerabilities by installing security patches", "severity": "high"},
+        {"control_id": "8.2.1", "title": "Using strong cryptography, render all authentication credentials unreadable during transmission", "severity": "critical"},
+        {"control_id": "8.3.1", "title": "Incorporate multi-factor authentication (MFA) for all non-console access into the CDE", "severity": "critical"},
+        {"control_id": "10.1", "title": "Implement audit trails to link all access to system components to each individual user", "severity": "high"},
+        {"control_id": "10.2", "title": "Implement automated audit trails for all system components", "severity": "high"},
+        {"control_id": "10.6", "title": "Review logs and security events for all system components", "severity": "medium"}
+      ]
+    },
+    "HIPAA": {
+      "total_controls": 54,
+      "passing": 28,
+      "failing": 22,
+      "not_applicable": 4,
+      "score_percentage": 56.0,
+      "critical_failures": [
+        {"control_id": "§164.312(a)(2)(iv)", "title": "Encryption and Decryption — PHI must be encrypted at rest", "severity": "critical"},
+        {"control_id": "§164.312(b)", "title": "Audit Controls — mechanisms to record and examine activity on systems that contain ePHI", "severity": "high"},
+        {"control_id": "§164.312(c)(1)", "title": "Integrity — ePHI must not be improperly altered or destroyed", "severity": "high"},
+        {"control_id": "§164.312(e)(2)(ii)", "title": "Encryption in Transit — ePHI in transit must be encrypted", "severity": "high"},
+        {"control_id": "§164.308(a)(1)", "title": "Risk Analysis — conduct accurate and thorough assessment of potential risks", "severity": "critical"},
+        {"control_id": "§164.308(a)(5)", "title": "Security Awareness and Training", "severity": "medium"}
+      ]
+    },
+    "NIST_CSF": {
+      "total_controls": 108,
+      "passing": 61,
+      "failing": 39,
+      "not_applicable": 8,
+      "score_percentage": 61.0,
+      "domains": {
+        "Identify": {"score": 58.3, "controls": 23, "failing": 9},
+        "Protect": {"score": 65.2, "controls": 42, "failing": 14},
+        "Detect": {"score": 55.0, "controls": 20, "failing": 9},
+        "Respond": {"score": 60.0, "controls": 15, "failing": 6},
+        "Recover": {"score": 71.4, "controls": 8, "failing": 1}
+      },
+      "critical_failures": [
+        {"control_id": "PR.AC-1", "title": "Identities and credentials are managed for authorized devices and users", "severity": "high"},
+        {"control_id": "PR.AC-3", "title": "Remote access is managed", "severity": "high"},
+        {"control_id": "PR.DS-1", "title": "Data-at-rest is protected", "severity": "critical"},
+        {"control_id": "PR.DS-2", "title": "Data-in-transit is protected", "severity": "high"},
+        {"control_id": "DE.AE-1", "title": "A baseline of network operations and expected data flows is established", "severity": "medium"},
+        {"control_id": "DE.CM-1", "title": "The network is monitored to detect potential cybersecurity events", "severity": "high"},
+        {"control_id": "RS.MI-1", "title": "Incidents are contained", "severity": "medium"}
+      ]
+    },
+    "SOC2": {
+      "total_controls": 64,
+      "passing": 41,
+      "failing": 19,
+      "not_applicable": 4,
+      "score_percentage": 68.3,
+      "trust_service_criteria": {
+        "CC1_Organization_and_Management": {"score": 75.0},
+        "CC2_Communication_and_Information": {"score": 70.0},
+        "CC3_Risk_Assessment": {"score": 65.0},
+        "CC4_Monitoring_Activities": {"score": 60.0},
+        "CC5_Control_Activities": {"score": 62.5},
+        "CC6_Logical_and_Physical_Access": {"score": 55.0},
+        "CC7_System_Operations": {"score": 72.0},
+        "CC8_Change_Management": {"score": 78.0},
+        "CC9_Risk_Mitigation": {"score": 68.0},
+        "A1_Availability": {"score": 70.0},
+        "C1_Confidentiality": {"score": 58.0}
+      },
+      "critical_failures": [
+        {"control_id": "CC6.1", "title": "Logical access security measures restrict access to information assets", "severity": "critical"},
+        {"control_id": "CC6.2", "title": "New internal and external users are registered", "severity": "medium"},
+        {"control_id": "CC6.6", "title": "Logical access security measures restrict access from outside systems", "severity": "high"},
+        {"control_id": "CC7.2", "title": "The entity monitors system components", "severity": "high"},
+        {"control_id": "A1.2", "title": "Recovery time and point objectives are met", "severity": "medium"}
+      ]
+    },
+    "ISO_27001_2022": {
+      "total_controls": 93,
+      "passing": 52,
+      "failing": 35,
+      "not_applicable": 6,
+      "score_percentage": 59.8,
+      "annex_a_domains": {
+        "A5_Organisational": {"score": 68.0, "controls": 37},
+        "A6_People": {"score": 72.0, "controls": 8},
+        "A7_Physical": {"score": 85.0, "controls": 14},
+        "A8_Technological": {"score": 52.0, "controls": 34}
+      },
+      "critical_failures": [
+        {"control_id": "A.8.2", "title": "Privileged access rights", "severity": "critical"},
+        {"control_id": "A.8.3", "title": "Information access restriction", "severity": "high"},
+        {"control_id": "A.8.5", "title": "Secure authentication", "severity": "critical"},
+        {"control_id": "A.8.8", "title": "Management of technical vulnerabilities", "severity": "high"},
+        {"control_id": "A.8.9", "title": "Configuration management", "severity": "high"},
+        {"control_id": "A.8.15", "title": "Logging", "severity": "high"},
+        {"control_id": "A.8.24", "title": "Use of cryptography", "severity": "high"}
+      ]
+    },
+    "GDPR": {
+      "total_controls": 42,
+      "passing": 22,
+      "failing": 17,
+      "not_applicable": 3,
+      "score_percentage": 56.4,
+      "critical_failures": [
+        {"control_id": "Article 25", "title": "Data protection by design and by default", "severity": "critical"},
+        {"control_id": "Article 32", "title": "Security of processing — appropriate technical measures", "severity": "critical"},
+        {"control_id": "Article 33", "title": "Notification of data breach to supervisory authority within 72 hours", "severity": "high"},
+        {"control_id": "Article 35", "title": "Data protection impact assessment", "severity": "high"},
+        {"control_id": "Article 5(1)(f)", "title": "Integrity and confidentiality of personal data", "severity": "critical"}
+      ]
+    }
+  },
+  "overall_posture": {
+    "total_frameworks": 7,
+    "average_compliance_score": 59.4,
+    "most_critical_framework": "HIPAA",
+    "highest_compliance_framework": "PCI_DSS_3.2.1",
+    "total_failing_controls_across_all_frameworks": 235,
+    "remediation_priority_order": ["critical", "high", "medium", "low"]
+  }
+}
