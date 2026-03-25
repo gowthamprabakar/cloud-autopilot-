@@ -45,7 +45,7 @@ class Settings(BaseSettings):
 
     # ── Redis (production rate limiting / job queue) ──────────
     # Leave blank to use in-memory fallback (dev/test only)
-    redis_url: str = ""
+    redis_url: str = "redis://localhost:6379/0"
 
     # ── AI (Phase 6) ───────────────────────────────────────────
     ai_provider: str = "anthropic"
@@ -53,6 +53,14 @@ class Settings(BaseSettings):
     ai_model: str = "claude-sonnet-4-6"
     ai_max_tokens: int = 1024
     ai_enabled: bool = True
+
+    # ── OmniSec Infrastructure (Sprint 29) ─────────────────────
+    celery_broker_url: str = "redis://localhost:6379/1"
+    anthropic_model: str = "claude-sonnet-4-20250514"
+    anthropic_max_tokens: int = 1000
+    neo4j_uri: str = "bolt://localhost:7687"
+    neo4j_user: str = "neo4j"
+    neo4j_password: str = ""
 
     # ── Email (SMTP) ────────────────────────────────────────────────
     # Leave blank to disable email (dev/test). Set all fields for production.

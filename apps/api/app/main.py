@@ -16,7 +16,7 @@ from apscheduler.triggers.cron import CronTrigger
 
 from app.core.config import settings
 from app.core.logging import configure_logging
-from app.routers import ai, agent, api_keys, attack_paths, audit_log, auth, aws_accounts, ciem, compliance, detections, drift, email_digest, executive, findings, health, intelligence, notifications, portfolio, prompt_registry, reports, scanner, suppression, totp, users, vulns, webhooks, workspaces, workspace_settings, sla, jira, onboarding, security_graph
+from app.routers import ai, agent, api_keys, attack_paths, audit_log, auth, aws_accounts, ciem, compliance, detections, drift, email_digest, executive, findings, health, intelligence, notifications, portfolio, prompt_registry, reports, scanner, simulations, suppression, totp, users, vulns, webhooks, workspaces, workspace_settings, sla, jira, onboarding, security_graph
 
 configure_logging()
 logger = structlog.get_logger(__name__)
@@ -198,6 +198,8 @@ app.include_router(prompt_registry.router, prefix="/api/v1")
 app.include_router(attack_paths.router, prefix="/api/v1")
 # Sprint 28 — Drift Detection
 app.include_router(drift.router, prefix="/api/v1")
+# Sprint 29 — OmniSec Simulation Engine
+app.include_router(simulations.router, prefix="/api/v1")
 
 # Phase 4+ will add:
 # app.include_router(workflows.router,    prefix="/api/v1")

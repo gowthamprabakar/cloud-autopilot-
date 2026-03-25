@@ -38,6 +38,11 @@ from app.models.attack_path import AttackPath
 from app.models.scan_job import ScanJob
 from app.models.agent_result import AgentResult
 from app.models.agent_audit_log import AgentAuditLog
+# OmniSec swarm agent models
+from app.models.simulation_run import SimulationRun
+from app.models.swarm_agent import SwarmAgent
+from app.models.comm_message import CommMessage
+from app.models.validation_gate import ValidationGate
 
 __all__ = [
     "Tenant",
@@ -66,6 +71,10 @@ __all__ = [
     "ScanJob",
     "AgentResult",
     "AgentAuditLog",
+    "SimulationRun",
+    "SwarmAgent",
+    "CommMessage",
+    "ValidationGate",
     "UserRole",
     "TenantPlan",
     "TenantStatus",

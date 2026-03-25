@@ -5,7 +5,7 @@ import {
   Shield, LayoutDashboard, AlertTriangle, CloudCog,
   CheckSquare, LogOut, Settings, ChevronRight, Users2, ClipboardList,
   ShieldOff, BarChart3, KeyRound, Webhook, ClipboardCheck, SlidersHorizontal,
-  Plug, Mail, ShieldCheck, Network, TrendingUp, UserCog, Bug, Radar, Route, Sparkles, GitCompare, Building2, type LucideIcon
+  Plug, Mail, ShieldCheck, Network, TrendingUp, UserCog, Bug, Radar, Route, Sparkles, GitCompare, Building2, Atom, type LucideIcon
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/hooks/use-auth";
@@ -21,6 +21,7 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   { href: "/dashboard",            label: "Overview",     icon: LayoutDashboard, exact: true },
   { href: "/dashboard/executive",  label: "Executive",    icon: TrendingUp, roles: ["admin", "super_admin", "analyst"] },
+  { href: "/dashboard/simulations", label: "Simulations",  icon: Atom,       roles: ["admin", "super_admin", "analyst"] },
   { href: "/dashboard/ciem",        label: "CIEM",         icon: UserCog,    roles: ["admin", "super_admin", "analyst"] },
   { href: "/dashboard/detections",  label: "Detections",   icon: Radar,      roles: ["admin", "super_admin", "analyst"] },
   { href: "/dashboard/vulns",       label: "Vulnerabilities", icon: Bug,     roles: ["admin", "super_admin", "analyst"] },
