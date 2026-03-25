@@ -5,7 +5,7 @@ import {
   Shield, LayoutDashboard, AlertTriangle, CloudCog,
   CheckSquare, LogOut, Settings, ChevronRight, Users2, ClipboardList,
   ShieldOff, BarChart3, KeyRound, Webhook, ClipboardCheck, SlidersHorizontal,
-  Plug, Mail, ShieldCheck, Network, TrendingUp, UserCog, Bug, Radar, Route, Sparkles, GitCompare, type LucideIcon
+  Plug, Mail, ShieldCheck, Network, TrendingUp, UserCog, Bug, Radar, Route, Sparkles, GitCompare, Building2, type LucideIcon
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/hooks/use-auth";
@@ -28,6 +28,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/dashboard/security-graph", label: "Security Graph",   icon: Network, roles: ["admin", "super_admin", "analyst"] },
   { href: "/dashboard/attack-paths", label: "Attack Paths", icon: Route, roles: ["admin", "super_admin", "analyst"] },
   { href: "/dashboard/drift", label: "Drift", icon: GitCompare, roles: ["admin", "super_admin", "analyst"] },
+  { href: "/dashboard/portfolio", label: "Portfolio", icon: Building2, roles: ["admin", "super_admin"] },
   { href: "/dashboard/accounts",        label: "AWS Accounts",     icon: CloudCog },
   { href: "/dashboard/compliance",      label: "Compliance",       icon: CheckSquare },
   { href: "/dashboard/team",       label: "Team",         icon: Users2 },
