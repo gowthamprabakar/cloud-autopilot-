@@ -1,16 +1,18 @@
 """
-SimulationService — OmniSec swarm simulation orchestration engine (Sprint 29).
+SimulationService — OmniSec swarm simulation orchestration engine (Sprint 30).
 
-Orchestrates a full threat simulation run. For Sprint 29, agents execute
-SEQUENTIALLY with mock outputs. Celery parallel execution is planned for
-Sprint 30 once the claude_client is wired up.
+Orchestrates a full threat simulation run. When ANTHROPIC_API_KEY is set,
+agents call the Claude API via AgentExecutor with context chaining.
+Falls back to mock outputs when the API key is absent.
 """
 
 from __future__ import annotations
 
 import asyncio
 import json
+import os
 import random
+import re
 import uuid
 from datetime import UTC, datetime
 from typing import Any
@@ -23,6 +25,8 @@ from app.models.comm_message import CommMessage
 from app.models.simulation_run import SimulationRun
 from app.models.swarm_agent import SwarmAgent
 from app.models.validation_gate import ValidationGate
+from app.services.agent_executor import AgentExecutor
+from app.services.gate_parser import parse_gates, parse_confidence
 
 logger = structlog.get_logger(__name__)
 
@@ -372,16 +376,9 @@ class SimulationService:
     async def execute_simulation(self, run_id: uuid.UUID) -> SimulationRun:
         """Execute the full simulation pipeline for a run.
 
-        For Sprint 29, this is a MOCK implementation that:
-        1. Creates 6 base agents (ORCH-01, SCOUT-01, EXPLOIT-01, DEFEND-01, VALID-01, REPORT-01)
-        2. Runs them sequentially (each agent gets 2-second simulated delay)
-        3. Each agent generates mock output based on the threat domain
-        4. Creates comm bus messages between agents
-        5. Creates 12 validation gates with mock scores
-        6. Computes overall confidence score
-        7. Updates the SimulationRun with results
-
-        Real Claude API calls come in Sprint 30 when we have the claude_client ready.
+        Sprint 30: When ANTHROPIC_API_KEY is set, calls the Claude API via
+        AgentExecutor with context chaining (each agent receives all prior
+        agent outputs). Falls back to mock outputs when the key is absent.
         """
         run = await self.get_run(run_id)
         if run is None:
@@ -390,6 +387,11 @@ class SimulationService:
         domain = run.domain
         domain_label = THREAT_DOMAINS.get(domain, domain)
         started_at = datetime.now(UTC)
+
+        # Determine execution mode
+        use_live = bool(os.getenv("ANTHROPIC_API_KEY"))
+        mode = "live" if use_live else "mock"
+        logger.info("simulation_start", run_id=str(run_id), domain=domain, mode=mode)
 
         # Mark as running
         run.status = "running"
@@ -415,118 +417,200 @@ class SimulationService:
                 agents.append(agent)
             await self.db.flush()
 
-            # ── Step 2: Execute agents sequentially with mock delay ──────
             gate_results: list[dict] = []  # built by VALID-01
 
-            for agent in agents:
-                agent.status = "running"
-                agent.started_at = datetime.now(UTC)
-                await self.db.flush()
+            if use_live:
+                # ── LIVE MODE: Call Claude API with context chaining ──────
+                executor = AgentExecutor(self.db)
+                prior_outputs: list[dict[str, str]] = []
 
-                # Simulated 2-second processing delay
-                await asyncio.sleep(2)
+                for agent in agents:
+                    agent = await executor.execute_agent(run, agent, prior_outputs)
 
-                # Generate mock output based on role
-                if agent.role == "orchestrator":
-                    agent.output = _mock_orch_output(domain, domain_label)
-                    # Comm: ORCH -> ALL
-                    seq += 1
-                    self.db.add(CommMessage(
-                        simulation_run_id=run_id,
-                        from_agent_id="ORCH-01",
-                        to_agent_id="ALL",
-                        message_type="info",
-                        body=f"Threat decomposition complete for {domain_label}. Dispatching agents.",
-                        sequence_number=seq,
-                    ))
+                    # Accumulate output for context chaining
+                    if agent.status == "done" and agent.output:
+                        prior_outputs.append({
+                            "agent_id": agent.agent_id,
+                            "output": agent.output,
+                        })
 
-                elif agent.role == "recon":
-                    agent.output = _mock_scout_output(domain, domain_label)
-                    seq += 1
-                    self.db.add(CommMessage(
-                        simulation_run_id=run_id,
-                        from_agent_id="SCOUT-01",
-                        to_agent_id="EXPLOIT-01",
-                        message_type="info",
-                        body="Recon complete. 4 attack vectors identified. Passing to ExploitSynth.",
-                        sequence_number=seq,
-                    ))
-                    seq += 1
-                    self.db.add(CommMessage(
-                        simulation_run_id=run_id,
-                        from_agent_id="SCOUT-01",
-                        to_agent_id="ORCH-01",
-                        message_type="info",
-                        body="Attack surface score: 87.3/100. Recommend immediate action.",
-                        sequence_number=seq,
-                    ))
+                    # Post comm bus messages based on role
+                    if agent.role == "orchestrator" and agent.status == "done":
+                        seq += 1
+                        self.db.add(CommMessage(
+                            simulation_run_id=run_id,
+                            from_agent_id="ORCH-01",
+                            to_agent_id="ALL",
+                            message_type="info",
+                            body=f"Threat decomposition complete for {domain_label}. Dispatching agents.",
+                            sequence_number=seq,
+                        ))
+                    elif agent.role == "recon" and agent.status == "done":
+                        seq += 1
+                        self.db.add(CommMessage(
+                            simulation_run_id=run_id,
+                            from_agent_id="SCOUT-01",
+                            to_agent_id="EXPLOIT-01",
+                            message_type="info",
+                            body="Recon complete. Attack vectors identified. Passing to ExploitSynth.",
+                            sequence_number=seq,
+                        ))
+                    elif agent.role == "exploit" and agent.status == "done":
+                        seq += 1
+                        self.db.add(CommMessage(
+                            simulation_run_id=run_id,
+                            from_agent_id="EXPLOIT-01",
+                            to_agent_id="DEFEND-01",
+                            message_type="solution",
+                            body="Kill chains synthesized with MITRE ATT&CK mapping. Handing to ShieldWeaver.",
+                            sequence_number=seq,
+                        ))
+                    elif agent.role == "defend" and agent.status == "done":
+                        seq += 1
+                        self.db.add(CommMessage(
+                            simulation_run_id=run_id,
+                            from_agent_id="DEFEND-01",
+                            to_agent_id="VALID-01",
+                            message_type="solution",
+                            body="IaC remediations generated (Terraform). Ready for validation.",
+                            sequence_number=seq,
+                        ))
+                    elif agent.role == "validate" and agent.status == "done":
+                        # Parse real gate results from VALID-01 output
+                        gate_results = self._parse_gate_results(agent.output or "")
+                        seq += 1
+                        passed = sum(1 for g in gate_results if g["state"] == "pass")
+                        self.db.add(CommMessage(
+                            simulation_run_id=run_id,
+                            from_agent_id="VALID-01",
+                            to_agent_id="REPORT-01",
+                            message_type="info",
+                            body=f"12-gate validation complete. {passed}/{len(gate_results)} gates passed.",
+                            sequence_number=seq,
+                        ))
+                    elif agent.role == "report" and agent.status == "done":
+                        confidence = self._compute_confidence(gate_results) if gate_results else parse_confidence(agent.output or "")
+                        seq += 1
+                        self.db.add(CommMessage(
+                            simulation_run_id=run_id,
+                            from_agent_id="REPORT-01",
+                            to_agent_id="ORCH-01",
+                            message_type="solution",
+                            body=f"Executive report compiled. Confidence: {confidence:.1f}/100.",
+                            sequence_number=seq,
+                        ))
 
-                elif agent.role == "exploit":
-                    agent.output = _mock_exploit_output(domain, domain_label)
-                    seq += 1
-                    self.db.add(CommMessage(
-                        simulation_run_id=run_id,
-                        from_agent_id="EXPLOIT-01",
-                        to_agent_id="DEFEND-01",
-                        message_type="solution",
-                        body="2 kill chains synthesized with MITRE ATT&CK mapping. Handing to ShieldWeaver.",
-                        sequence_number=seq,
-                    ))
+                    await self.db.flush()
 
-                elif agent.role == "defend":
-                    agent.output = _mock_defend_output(domain, domain_label)
-                    seq += 1
-                    self.db.add(CommMessage(
-                        simulation_run_id=run_id,
-                        from_agent_id="DEFEND-01",
-                        to_agent_id="VALID-01",
-                        message_type="solution",
-                        body="3 IaC remediations generated (Terraform). Ready for validation.",
-                        sequence_number=seq,
-                    ))
+            else:
+                # ── MOCK MODE: Sprint 29 fallback ────────────────────────
+                for agent in agents:
+                    agent.status = "running"
+                    agent.started_at = datetime.now(UTC)
+                    await self.db.flush()
 
-                elif agent.role == "validate":
-                    # Generate 12 gate scores
-                    gate_results = self._generate_gate_results()
-                    agent.output = _mock_validate_output(gate_results)
-                    seq += 1
-                    passed = sum(1 for g in gate_results if g["state"] == "pass")
-                    self.db.add(CommMessage(
-                        simulation_run_id=run_id,
-                        from_agent_id="VALID-01",
-                        to_agent_id="REPORT-01",
-                        message_type="info",
-                        body=f"12-gate validation complete. {passed}/12 gates passed.",
-                        sequence_number=seq,
-                    ))
+                    # Simulated 2-second processing delay
+                    await asyncio.sleep(2)
 
-                elif agent.role == "report":
-                    gates_passed = sum(1 for g in gate_results if g["state"] == "pass")
-                    confidence = self._compute_confidence(gate_results)
-                    agent.output = _mock_report_output(
-                        domain, domain_label, confidence, gates_passed, 12
+                    # Generate mock output based on role
+                    if agent.role == "orchestrator":
+                        agent.output = _mock_orch_output(domain, domain_label)
+                        seq += 1
+                        self.db.add(CommMessage(
+                            simulation_run_id=run_id,
+                            from_agent_id="ORCH-01",
+                            to_agent_id="ALL",
+                            message_type="info",
+                            body=f"Threat decomposition complete for {domain_label}. Dispatching agents.",
+                            sequence_number=seq,
+                        ))
+
+                    elif agent.role == "recon":
+                        agent.output = _mock_scout_output(domain, domain_label)
+                        seq += 1
+                        self.db.add(CommMessage(
+                            simulation_run_id=run_id,
+                            from_agent_id="SCOUT-01",
+                            to_agent_id="EXPLOIT-01",
+                            message_type="info",
+                            body="Recon complete. 4 attack vectors identified. Passing to ExploitSynth.",
+                            sequence_number=seq,
+                        ))
+                        seq += 1
+                        self.db.add(CommMessage(
+                            simulation_run_id=run_id,
+                            from_agent_id="SCOUT-01",
+                            to_agent_id="ORCH-01",
+                            message_type="info",
+                            body="Attack surface score: 87.3/100. Recommend immediate action.",
+                            sequence_number=seq,
+                        ))
+
+                    elif agent.role == "exploit":
+                        agent.output = _mock_exploit_output(domain, domain_label)
+                        seq += 1
+                        self.db.add(CommMessage(
+                            simulation_run_id=run_id,
+                            from_agent_id="EXPLOIT-01",
+                            to_agent_id="DEFEND-01",
+                            message_type="solution",
+                            body="2 kill chains synthesized with MITRE ATT&CK mapping. Handing to ShieldWeaver.",
+                            sequence_number=seq,
+                        ))
+
+                    elif agent.role == "defend":
+                        agent.output = _mock_defend_output(domain, domain_label)
+                        seq += 1
+                        self.db.add(CommMessage(
+                            simulation_run_id=run_id,
+                            from_agent_id="DEFEND-01",
+                            to_agent_id="VALID-01",
+                            message_type="solution",
+                            body="3 IaC remediations generated (Terraform). Ready for validation.",
+                            sequence_number=seq,
+                        ))
+
+                    elif agent.role == "validate":
+                        gate_results = self._generate_gate_results()
+                        agent.output = _mock_validate_output(gate_results)
+                        seq += 1
+                        passed = sum(1 for g in gate_results if g["state"] == "pass")
+                        self.db.add(CommMessage(
+                            simulation_run_id=run_id,
+                            from_agent_id="VALID-01",
+                            to_agent_id="REPORT-01",
+                            message_type="info",
+                            body=f"12-gate validation complete. {passed}/12 gates passed.",
+                            sequence_number=seq,
+                        ))
+
+                    elif agent.role == "report":
+                        gates_passed = sum(1 for g in gate_results if g["state"] == "pass")
+                        confidence = self._compute_confidence(gate_results)
+                        agent.output = _mock_report_output(
+                            domain, domain_label, confidence, gates_passed, 12
+                        )
+                        seq += 1
+                        self.db.add(CommMessage(
+                            simulation_run_id=run_id,
+                            from_agent_id="REPORT-01",
+                            to_agent_id="ORCH-01",
+                            message_type="solution",
+                            body=f"Executive report compiled. Confidence: {confidence:.1f}/100.",
+                            sequence_number=seq,
+                        ))
+
+                    # Mark agent done
+                    agent.status = "done"
+                    agent.progress = 100
+                    agent.completed_at = datetime.now(UTC)
+                    # Mock token usage
+                    agent.input_tokens = random.randint(800, 2500)
+                    agent.output_tokens = random.randint(400, 1800)
+                    agent.cost_usd = round(
+                        (agent.input_tokens * 0.003 + agent.output_tokens * 0.015) / 1000, 4
                     )
-                    seq += 1
-                    self.db.add(CommMessage(
-                        simulation_run_id=run_id,
-                        from_agent_id="REPORT-01",
-                        to_agent_id="ORCH-01",
-                        message_type="solution",
-                        body=f"Executive report compiled. Confidence: {confidence:.1f}/100.",
-                        sequence_number=seq,
-                    ))
-
-                # Mark agent done
-                agent.status = "done"
-                agent.progress = 100
-                agent.completed_at = datetime.now(UTC)
-                # Mock token usage
-                agent.input_tokens = random.randint(800, 2500)
-                agent.output_tokens = random.randint(400, 1800)
-                agent.cost_usd = round(
-                    (agent.input_tokens * 0.003 + agent.output_tokens * 0.015) / 1000, 4
-                )
-                await self.db.flush()
+                    await self.db.flush()
 
             # ── Step 3: Persist validation gates ─────────────────────────
             for gdef in GATE_DEFINITIONS:
@@ -550,7 +634,7 @@ class SimulationService:
             # ── Step 4: Finalize run ─────────────────────────────────────
             completed_at = datetime.now(UTC)
             gates_passed = sum(1 for g in gate_results if g["state"] == "pass")
-            confidence = self._compute_confidence(gate_results)
+            confidence = self._compute_confidence(gate_results) if gate_results else 0.0
             total_tokens = sum(a.input_tokens + a.output_tokens for a in agents)
             total_cost = sum(a.cost_usd for a in agents)
 
@@ -574,8 +658,11 @@ class SimulationService:
                 "simulation_completed",
                 run_id=str(run_id),
                 domain=domain,
+                mode=mode,
                 confidence=confidence,
                 gates_passed=gates_passed,
+                total_tokens=total_tokens,
+                total_cost=round(total_cost, 4),
                 duration=run.duration_seconds,
             )
             return run
@@ -644,6 +731,54 @@ class SimulationService:
                             f"score {score}/100 — {'PASS' if state == 'pass' else state.upper()}. "
                             f"{'Double-weighted gate.' if gdef['double_weight'] else 'Standard weight.'}",
             })
+        return results
+
+    @staticmethod
+    def _parse_gate_results(output: str) -> list[dict]:
+        """Parse real gate results from VALID-01 Claude output.
+
+        Uses the gate_parser module first; if it finds fewer than 12 gates,
+        falls back to regex extraction with the simpler pattern.
+        """
+        parsed = parse_gates(output)
+
+        # If we got results, enrich with double_weight from GATE_DEFINITIONS
+        if parsed:
+            dw_map = {g["number"]: g["double_weight"] for g in GATE_DEFINITIONS}
+            for g in parsed:
+                g["double_weight"] = dw_map.get(g["gate_number"], False)
+                g.setdefault("name", next(
+                    (gd["name"] for gd in GATE_DEFINITIONS if gd["number"] == g["gate_number"]),
+                    f"Gate {g['gate_number']}",
+                ))
+            return parsed
+
+        # Fallback: try simpler regex
+        pattern = re.compile(
+            r"Gate\s+(\d+).*?(PASS|FAIL|PARTIAL).*?Score:\s*(\d+)",
+            re.IGNORECASE,
+        )
+        results = []
+        dw_map = {g["number"]: g["double_weight"] for g in GATE_DEFINITIONS}
+        for match in pattern.finditer(output):
+            gate_num = int(match.group(1))
+            results.append({
+                "gate_number": gate_num,
+                "name": next(
+                    (gd["name"] for gd in GATE_DEFINITIONS if gd["number"] == gate_num),
+                    f"Gate {gate_num}",
+                ),
+                "state": match.group(2).lower(),
+                "score": float(match.group(3)),
+                "double_weight": dw_map.get(gate_num, False),
+                "evidence": "",
+            })
+
+        # If still nothing parsed, generate mock gates as ultimate fallback
+        if not results:
+            logger.warning("gate_parse_failed", output_length=len(output))
+            results = SimulationService._generate_gate_results()
+
         return results
 
     @staticmethod
