@@ -35,6 +35,19 @@ _KEV: set[str] = {
 _SEV_SCORE = {"critical": 4, "high": 3, "medium": 2, "low": 1, "info": 0}
 
 
+def _parse_meta(val) -> dict:
+    """Parse JSON metadata field — may be str, dict, or None."""
+    if val is None:
+        return {}
+    if isinstance(val, dict):
+        return val
+    try:
+        import json
+        return json.loads(str(val))
+    except Exception:
+        return {}
+
+
 def _alert_id(rule_id: str, key: str) -> str:
     return hashlib.sha256(f"{rule_id}:{key}".encode()).hexdigest()[:16]
 
@@ -208,13 +221,7 @@ class DetectionService:
                 continue
             if not node.is_internet_facing:
                 continue
-            props = {}
-            if node.properties:
-                try:
-                    import json
-                    props = json.loads(node.properties) if isinstance(node.properties, str) else node.properties
-                except Exception:
-                    pass
+            props = _parse_meta(node.metadata)
             scope = props.get("permission_scope", "unknown")
             if scope not in {"admin", "write"}:
                 continue
@@ -223,7 +230,7 @@ class DetectionService:
                 "id": aid,
                 "rule_id": "ADMIN_ENTITY_INTERNET_FACING",
                 "title": f"Internet-Facing {node.node_type.replace('iam_', 'IAM ').title()} with {scope.title()} Permissions",
-                "description": f"IAM entity '{node.name}' has {scope} permissions and is marked internet-facing, enabling direct cloud control plane abuse.",
+                "description": f"IAM entity '{node.resource_name}' has {scope} permissions and is marked internet-facing, enabling direct cloud control plane abuse.",
                 "severity": "high",
                 "confidence": 0.88,
                 "tactic": "Persistence",
@@ -233,7 +240,7 @@ class DetectionService:
                 "affected_resources": [{"arn": str(node.resource_arn or ""), "type": node.node_type, "region": str(node.region or "")}],
                 "finding_ids": [],
                 "detected_at": _now(),
-                "evidence": f"Node '{node.name}' (type={node.node_type}, scope={scope}) is_internet_facing=True.",
+                "evidence": f"Node '{node.resource_name}' (type={node.node_type}, scope={scope}) is_internet_facing=True.",
             })
         return alerts
 
@@ -338,13 +345,7 @@ class DetectionService:
         for node in nodes:
             if node.node_type not in {"iam_user", "iam_role"}:
                 continue
-            props = {}
-            if node.properties:
-                try:
-                    import json
-                    props = json.loads(node.properties) if isinstance(node.properties, str) else node.properties
-                except Exception:
-                    pass
+            props = _parse_meta(node.metadata)
             if props.get("has_mfa") is False or props.get("mfa_enabled") is False:
                 no_mfa_nodes.append(node)
 
@@ -365,8 +366,8 @@ class DetectionService:
             alerts.append({
                 "id": aid,
                 "rule_id": "IDENTITY_GAP_EXPOSURE",
-                "title": f"Identity Gap: {node.name} Has No MFA + Open High/Critical Finding",
-                "description": f"IAM entity '{node.name}' has no MFA enabled and is correlated with a high-severity security finding.",
+                "title": f"Identity Gap: {node.resource_name} Has No MFA + Open High/Critical Finding",
+                "description": f"IAM entity '{node.resource_name}' has no MFA enabled and is correlated with a high-severity security finding.",
                 "severity": "high",
                 "confidence": 0.82,
                 "tactic": "Credential Access",
@@ -376,7 +377,7 @@ class DetectionService:
                 "affected_resources": [{"arn": str(node.resource_arn or ""), "type": node.node_type, "region": str(node.region or "")}],
                 "finding_ids": [str(f.id)],
                 "detected_at": _now(),
-                "evidence": f"Node '{node.name}' has no MFA. Correlated finding: '{f.title}'.",
+                "evidence": f"Node '{node.resource_name}' has no MFA. Correlated finding: '{f.title}'.",
             })
         return alerts
 

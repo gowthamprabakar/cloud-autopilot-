@@ -5,7 +5,7 @@ import {
   Shield, LayoutDashboard, AlertTriangle, CloudCog,
   CheckSquare, LogOut, Settings, ChevronRight, Users2, ClipboardList,
   ShieldOff, BarChart3, KeyRound, Webhook, ClipboardCheck, SlidersHorizontal,
-  Plug, Mail, ShieldCheck, Network, TrendingUp, UserCog, Bug, Radar, type LucideIcon
+  Plug, Mail, ShieldCheck, Network, TrendingUp, UserCog, Bug, Radar, Route, Sparkles, GitCompare, type LucideIcon
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/hooks/use-auth";
@@ -26,6 +26,8 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/dashboard/vulns",       label: "Vulnerabilities", icon: Bug,     roles: ["admin", "super_admin", "analyst"] },
   { href: "/dashboard/findings",        label: "Findings",        icon: AlertTriangle },
   { href: "/dashboard/security-graph", label: "Security Graph",   icon: Network, roles: ["admin", "super_admin", "analyst"] },
+  { href: "/dashboard/attack-paths", label: "Attack Paths", icon: Route, roles: ["admin", "super_admin", "analyst"] },
+  { href: "/dashboard/drift", label: "Drift", icon: GitCompare, roles: ["admin", "super_admin", "analyst"] },
   { href: "/dashboard/accounts",        label: "AWS Accounts",     icon: CloudCog },
   { href: "/dashboard/compliance",      label: "Compliance",       icon: CheckSquare },
   { href: "/dashboard/team",       label: "Team",         icon: Users2 },
@@ -39,6 +41,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/dashboard/settings/workspace",     label: "Workspace",         icon: SlidersHorizontal, roles: ["admin", "super_admin"] },
   { href: "/dashboard/settings/integrations", label: "Integrations",      icon: Plug,              roles: ["admin", "super_admin"] },
   { href: "/dashboard/settings/email",        label: "Email",             icon: Mail },
+  { href: "/dashboard/settings/prompts",     label: "AI Prompts",        icon: Sparkles,          roles: ["admin", "super_admin"] },
   { href: "/dashboard/settings/security",     label: "Security",          icon: ShieldCheck },
   { href: "/dashboard/settings/reports",      label: "Scheduled Reports", icon: BarChart3,          roles: ["admin", "super_admin"] },
 ];
