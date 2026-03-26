@@ -12,7 +12,12 @@ import logging
 import os
 from typing import Any
 
-import redis.asyncio as aioredis
+try:
+    import redis.asyncio as aioredis
+    _redis_available = True
+except ImportError:
+    aioredis = None  # type: ignore
+    _redis_available = False
 
 logger = logging.getLogger(__name__)
 
@@ -22,13 +27,19 @@ logger = logging.getLogger(__name__)
 
 REDIS_URL: str = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 
-_pool = aioredis.ConnectionPool.from_url(
-    REDIS_URL,
-    max_connections=50,
-    decode_responses=True,
-)
+_pool = None
+redis_client = None
 
-redis_client: aioredis.Redis = aioredis.Redis(connection_pool=_pool)
+if _redis_available:
+    try:
+        _pool = aioredis.ConnectionPool.from_url(
+            REDIS_URL,
+            max_connections=50,
+            decode_responses=True,
+        )
+        redis_client = aioredis.Redis(connection_pool=_pool)
+    except Exception:
+        logger.warning("Redis not available — running without Redis")
 
 # ---------------------------------------------------------------------------
 # FastAPI dependency

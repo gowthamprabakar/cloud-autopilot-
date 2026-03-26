@@ -2,19 +2,29 @@
 Neo4j client — graph database integration for OmniSec security graph.
 
 Sprint 31: Provides async Neo4j driver, session management, and health check.
-Uses neo4j async driver (neo4j[async]).
+Uses neo4j async driver (neo4j[async]) — gracefully degrades if not installed.
 """
 
 import os
 from typing import Any
-from neo4j import AsyncGraphDatabase, AsyncDriver, AsyncSession
 
-_driver: AsyncDriver | None = None
+_driver = None
+_neo4j_available = False
+
+try:
+    from neo4j import AsyncGraphDatabase, AsyncDriver, AsyncSession
+    _neo4j_available = True
+except ImportError:
+    AsyncGraphDatabase = None  # type: ignore
+    AsyncDriver = None  # type: ignore
+    AsyncSession = None  # type: ignore
 
 
-async def get_neo4j_driver() -> AsyncDriver:
+async def get_neo4j_driver():
     """Get or create the Neo4j async driver singleton."""
     global _driver
+    if not _neo4j_available:
+        raise RuntimeError("neo4j package not installed. Run: pip install neo4j")
     if _driver is None:
         uri = os.getenv("NEO4J_URI", "bolt://localhost:7687")
         user = os.getenv("NEO4J_USER", "neo4j")
@@ -23,7 +33,7 @@ async def get_neo4j_driver() -> AsyncDriver:
     return _driver
 
 
-async def get_neo4j_session() -> AsyncSession:
+async def get_neo4j_session():
     """Get a new Neo4j async session."""
     driver = await get_neo4j_driver()
     return driver.session()
@@ -39,6 +49,8 @@ async def close_neo4j():
 
 async def neo4j_health() -> dict:
     """Health check for Neo4j connection."""
+    if not _neo4j_available:
+        return {"status": "unavailable", "connected": False, "error": "neo4j package not installed"}
     try:
         driver = await get_neo4j_driver()
         async with driver.session() as session:

@@ -34,6 +34,13 @@ FULL_AGENT_ROSTER = {
     "CHAIN-01": {"name": "ChainBreaker", "role": "supply_chain_specialist", "autonomy": 4, "spawn_authority": False, "domain": "supply_chain", "sigil": "\U0001f517", "color": "#27AE60"},
     "OT-01": {"name": "SCADAGuard", "role": "ot_ics_specialist", "autonomy": 4, "spawn_authority": False, "domain": "ot_ics", "sigil": "\U0001f3ed", "color": "#95A5A6"},
     "LLM-01": {"name": "LLMShield", "role": "llmjacking_specialist", "autonomy": 4, "spawn_authority": False, "domain": "llmjacking", "sigil": "\U0001f916", "color": "#1ABC9C"},
+    # Wiz CNAPP Agents (extended)
+    "WIZ-DSPM": {"name": "DSPMAgent", "role": "dspm_simulation", "autonomy": 3, "spawn_authority": False, "domain": "data_security", "sigil": "\U0001f5c4", "color": "#2ECC71"},
+    "WIZ-KSPM": {"name": "KSPMAgent", "role": "kspm_simulation", "autonomy": 3, "spawn_authority": False, "domain": "kubernetes", "sigil": "\u2638", "color": "#326CE5"},
+    "WIZ-IaC": {"name": "IaCAgent", "role": "iac_simulation", "autonomy": 3, "spawn_authority": False, "domain": "code_security", "sigil": "\U0001f4dd", "color": "#F39C12"},
+    "WIZ-UVM": {"name": "UVMAgent", "role": "uvm_simulation", "autonomy": 3, "spawn_authority": False, "domain": "vulnerability", "sigil": "\U0001f50d", "color": "#E74C3C"},
+    "WIZ-AISPM": {"name": "AISPMAgent", "role": "aispm_simulation", "autonomy": 3, "spawn_authority": False, "domain": "ai_security", "sigil": "\U0001f9e0", "color": "#9B59B6"},
+    "WIZ-ASM": {"name": "ASMAgent", "role": "asm_simulation", "autonomy": 3, "spawn_authority": False, "domain": "attack_surface", "sigil": "\U0001f310", "color": "#1ABC9C"},
     # Spawnable
     "DEEP-XX": {"name": "DeepDiver", "role": "deep_analysis", "autonomy": 3, "spawn_authority": False, "domain": "ad-hoc", "sigil": "\U0001f52c", "color": "#BDC3C7"},
 }

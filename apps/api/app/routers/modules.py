@@ -25,24 +25,31 @@ GET  /api/v1/modules/supply-chain/signing           Signing verification
 GET  /api/v1/modules/ot-ics/digital-twin           Digital twin assessment
 GET  /api/v1/modules/ot-ics/air-gap                Air gap integrity
 GET  /api/v1/modules/ot-ics/nation-state           Nation-state indicators
+GET  /api/v1/modules/ot-ics/protocol-whitelist     Protocol whitelist
 
 # LLMjacking
 GET  /api/v1/modules/llmjacking/credentials        Credential audit
 GET  /api/v1/modules/llmjacking/spend              Spend anomaly detection
+GET  /api/v1/modules/llmjacking/canary             Canary deployment plan
+GET  /api/v1/modules/llmjacking/vpc                VPC enforcement
 
 # Federated Identity
 GET  /api/v1/modules/federated-id/golden-saml      Golden SAML assessment
 GET  /api/v1/modules/federated-id/cross-cloud      Cross-cloud correlation
+GET  /api/v1/modules/federated-id/oidc             OIDC validation
+GET  /api/v1/modules/federated-id/token-revocation Token revocation SLA
 
 # DSPM
 GET  /api/v1/modules/dspm/classify                 Data store classification
 GET  /api/v1/modules/dspm/exposure                 Exposure paths
 GET  /api/v1/modules/dspm/breach-impact            Breach impact model
+GET  /api/v1/modules/dspm/regulatory               Regulatory compliance
 
 # KSPM
 GET  /api/v1/modules/kspm/rbac                     RBAC audit
 GET  /api/v1/modules/kspm/network                  Network policy audit
 GET  /api/v1/modules/kspm/admission                Admission controller assessment
+GET  /api/v1/modules/kspm/pod-pivots               Pod-to-cloud pivots
 
 # ASM
 GET  /api/v1/modules/asm/exposure                  External exposure
@@ -63,6 +70,11 @@ from app.core.exceptions import ForbiddenError, NotFoundError
 from app.services.modules.cspm_module import CSPMModule
 from app.services.modules.cwpp_module import CWPPModule
 from app.services.modules.quantum_module import QuantumModule
+from app.services.modules.deepfake_module import DeepfakeModule
+from app.services.modules.supply_chain_module import SupplyChainModule
+from app.services.modules.ot_ics_module import OTICSModule
+from app.services.modules.llmjacking_module import LLMjackingModule
+from app.services.modules.federated_id_module import FederatedIDModule
 from app.services.modules.dspm_module import DSPMModule
 from app.services.modules.kspm_module import KSPMModule
 from app.services.modules.asm_module import ASMModule
@@ -235,17 +247,8 @@ async def deepfake_risk(
     db: AsyncSession = Depends(get_db),
 ) -> dict:
     workspace_id = _workspace_id(current_user)
-    # Stub — service module will be added in a future sprint
-    return {
-        "workspace_id": str(workspace_id),
-        "module": "deepfake",
-        "method": "risk",
-        "status": "stub",
-        "risk_score": 0,
-        "biometric_auth_count": 0,
-        "video_kyc_count": 0,
-        "social_engineering_vectors": [],
-    }
+    svc = DeepfakeModule(db)
+    return await svc.assess_risk(workspace_id)
 
 
 @router.get(
@@ -258,15 +261,8 @@ async def deepfake_auth_audit(
     db: AsyncSession = Depends(get_db),
 ) -> dict:
     workspace_id = _workspace_id(current_user)
-    return {
-        "workspace_id": str(workspace_id),
-        "module": "deepfake",
-        "method": "auth_audit",
-        "status": "stub",
-        "auth_methods": [],
-        "vulnerable_methods": [],
-        "recommendations": [],
-    }
+    svc = DeepfakeModule(db)
+    return await svc.authentication_audit(workspace_id)
 
 
 # ── Supply Chain Endpoints ─────────────────────────────────────────────────
@@ -282,16 +278,8 @@ async def supply_chain_dependencies(
     db: AsyncSession = Depends(get_db),
 ) -> dict:
     workspace_id = _workspace_id(current_user)
-    return {
-        "workspace_id": str(workspace_id),
-        "module": "supply_chain",
-        "method": "dependencies",
-        "status": "stub",
-        "total_dependencies": 0,
-        "vulnerable": 0,
-        "eol_libraries": [],
-        "typosquat_suspects": [],
-    }
+    svc = SupplyChainModule(db)
+    return await svc.dependency_audit(workspace_id)
 
 
 @router.get(
@@ -304,15 +292,8 @@ async def supply_chain_sbom(
     db: AsyncSession = Depends(get_db),
 ) -> dict:
     workspace_id = _workspace_id(current_user)
-    return {
-        "workspace_id": str(workspace_id),
-        "module": "supply_chain",
-        "method": "sbom",
-        "status": "stub",
-        "sbom_entries": 0,
-        "drift_detected": False,
-        "unsigned_packages": [],
-    }
+    svc = SupplyChainModule(db)
+    return await svc.sbom_validation(workspace_id)
 
 
 @router.get(
@@ -325,15 +306,8 @@ async def supply_chain_signing(
     db: AsyncSession = Depends(get_db),
 ) -> dict:
     workspace_id = _workspace_id(current_user)
-    return {
-        "workspace_id": str(workspace_id),
-        "module": "supply_chain",
-        "method": "signing",
-        "status": "stub",
-        "signed_artifacts": 0,
-        "unsigned_artifacts": 0,
-        "provenance_verified": 0,
-    }
+    svc = SupplyChainModule(db)
+    return await svc.signing_verification(workspace_id)
 
 
 # ── OT/ICS Endpoints ──────────────────────────────────────────────────────
@@ -349,15 +323,8 @@ async def ot_ics_digital_twin(
     db: AsyncSession = Depends(get_db),
 ) -> dict:
     workspace_id = _workspace_id(current_user)
-    return {
-        "workspace_id": str(workspace_id),
-        "module": "ot_ics",
-        "method": "digital_twin",
-        "status": "stub",
-        "twin_assets": 0,
-        "segmentation_score": 0,
-        "exposed_protocols": [],
-    }
+    svc = OTICSModule(db)
+    return await svc.digital_twin_assessment(workspace_id)
 
 
 @router.get(
@@ -370,15 +337,8 @@ async def ot_ics_air_gap(
     db: AsyncSession = Depends(get_db),
 ) -> dict:
     workspace_id = _workspace_id(current_user)
-    return {
-        "workspace_id": str(workspace_id),
-        "module": "ot_ics",
-        "method": "air_gap",
-        "status": "stub",
-        "air_gap_intact": True,
-        "bridging_devices": [],
-        "rogue_connections": [],
-    }
+    svc = OTICSModule(db)
+    return await svc.air_gap_integrity(workspace_id)
 
 
 @router.get(
@@ -391,15 +351,22 @@ async def ot_ics_nation_state(
     db: AsyncSession = Depends(get_db),
 ) -> dict:
     workspace_id = _workspace_id(current_user)
-    return {
-        "workspace_id": str(workspace_id),
-        "module": "ot_ics",
-        "method": "nation_state",
-        "status": "stub",
-        "indicators_found": 0,
-        "threat_families": [],
-        "iocs": [],
-    }
+    svc = OTICSModule(db)
+    return await svc.nation_state_indicators(workspace_id)
+
+
+@router.get(
+    "/ot-ics/protocol-whitelist",
+    summary="Protocol whitelist",
+    description="Validate OT/ICS protocol whitelist — ensure only approved industrial protocols (Modbus, DNP3, OPC-UA) are in use.",
+)
+async def ot_ics_protocol_whitelist(
+    current_user: CurrentUserDep,
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    workspace_id = _workspace_id(current_user)
+    svc = OTICSModule(db)
+    return await svc.protocol_whitelist(workspace_id)
 
 
 # ── LLMjacking Endpoints ──────────────────────────────────────────────────
@@ -415,16 +382,8 @@ async def llmjacking_credentials(
     db: AsyncSession = Depends(get_db),
 ) -> dict:
     workspace_id = _workspace_id(current_user)
-    return {
-        "workspace_id": str(workspace_id),
-        "module": "llmjacking",
-        "method": "credentials",
-        "status": "stub",
-        "exposed_keys": 0,
-        "over_permissioned": 0,
-        "unrotated_secrets": 0,
-        "services_audited": [],
-    }
+    svc = LLMjackingModule(db)
+    return await svc.credential_audit(workspace_id)
 
 
 @router.get(
@@ -437,16 +396,36 @@ async def llmjacking_spend(
     db: AsyncSession = Depends(get_db),
 ) -> dict:
     workspace_id = _workspace_id(current_user)
-    return {
-        "workspace_id": str(workspace_id),
-        "module": "llmjacking",
-        "method": "spend",
-        "status": "stub",
-        "anomalies_detected": 0,
-        "baseline_daily_spend": 0.0,
-        "current_daily_spend": 0.0,
-        "spike_ratio": 0.0,
-    }
+    svc = LLMjackingModule(db)
+    return await svc.spend_anomaly_detection(workspace_id)
+
+
+@router.get(
+    "/llmjacking/canary",
+    summary="Canary deployment plan",
+    description="Generate a canary deployment plan for LLM API keys — honeytokens, tripwire credentials, and alerting rules.",
+)
+async def llmjacking_canary(
+    current_user: CurrentUserDep,
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    workspace_id = _workspace_id(current_user)
+    svc = LLMjackingModule(db)
+    return await svc.canary_deployment_plan(workspace_id)
+
+
+@router.get(
+    "/llmjacking/vpc",
+    summary="VPC enforcement",
+    description="Assess VPC endpoint enforcement for LLM API traffic — ensure AI service calls stay within private network boundaries.",
+)
+async def llmjacking_vpc(
+    current_user: CurrentUserDep,
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    workspace_id = _workspace_id(current_user)
+    svc = LLMjackingModule(db)
+    return await svc.vpc_enforcement(workspace_id)
 
 
 # ── Federated Identity Endpoints ──────────────────────────────────────────
@@ -462,16 +441,8 @@ async def federated_id_golden_saml(
     db: AsyncSession = Depends(get_db),
 ) -> dict:
     workspace_id = _workspace_id(current_user)
-    return {
-        "workspace_id": str(workspace_id),
-        "module": "federated_id",
-        "method": "golden_saml",
-        "status": "stub",
-        "risk_score": 0,
-        "signing_cert_exposed": False,
-        "saml_anomalies": [],
-        "recommendations": [],
-    }
+    svc = FederatedIDModule(db)
+    return await svc.golden_saml_assessment(workspace_id)
 
 
 @router.get(
@@ -484,15 +455,36 @@ async def federated_id_cross_cloud(
     db: AsyncSession = Depends(get_db),
 ) -> dict:
     workspace_id = _workspace_id(current_user)
-    return {
-        "workspace_id": str(workspace_id),
-        "module": "federated_id",
-        "method": "cross_cloud",
-        "status": "stub",
-        "trust_chains": [],
-        "orphaned_trusts": 0,
-        "excessive_privileges": 0,
-    }
+    svc = FederatedIDModule(db)
+    return await svc.cross_cloud_correlation(workspace_id)
+
+
+@router.get(
+    "/federated-id/oidc",
+    summary="OIDC validation",
+    description="Validate OpenID Connect configurations — issuer trust, audience restrictions, token lifetime policies, and JWKS rotation.",
+)
+async def federated_id_oidc(
+    current_user: CurrentUserDep,
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    workspace_id = _workspace_id(current_user)
+    svc = FederatedIDModule(db)
+    return await svc.oidc_validation(workspace_id)
+
+
+@router.get(
+    "/federated-id/token-revocation",
+    summary="Token revocation SLA",
+    description="Assess token revocation SLA compliance — measure revocation propagation latency across federated identity providers.",
+)
+async def federated_id_token_revocation(
+    current_user: CurrentUserDep,
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    workspace_id = _workspace_id(current_user)
+    svc = FederatedIDModule(db)
+    return await svc.token_revocation_sla(workspace_id)
 
 
 # ── DSPM Endpoints ─────────────────────────────────────────────────────────
@@ -540,6 +532,20 @@ async def dspm_breach_impact(
     return await svc.breach_impact(workspace_id)
 
 
+@router.get(
+    "/dspm/regulatory",
+    summary="Regulatory compliance",
+    description="Assess regulatory compliance posture for data stores — GDPR, HIPAA, PCI-DSS, and SOX mapping with gap analysis.",
+)
+async def dspm_regulatory(
+    current_user: CurrentUserDep,
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    workspace_id = _workspace_id(current_user)
+    svc = DSPMModule(db)
+    return await svc.regulatory_compliance(workspace_id)
+
+
 # ── KSPM Endpoints ─────────────────────────────────────────────────────────
 
 
@@ -583,6 +589,20 @@ async def kspm_admission(
     workspace_id = _workspace_id(current_user)
     svc = KSPMModule(db)
     return await svc.admission_controller_assessment(workspace_id)
+
+
+@router.get(
+    "/kspm/pod-pivots",
+    summary="Pod-to-cloud pivots",
+    description="Detect pod-to-cloud pivot paths — identify pods with cloud credentials, IMDS access, and lateral movement vectors.",
+)
+async def kspm_pod_pivots(
+    current_user: CurrentUserDep,
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    workspace_id = _workspace_id(current_user)
+    svc = KSPMModule(db)
+    return await svc.pod_cloud_pivots(workspace_id)
 
 
 # ── ASM Endpoints ──────────────────────────────────────────────────────────

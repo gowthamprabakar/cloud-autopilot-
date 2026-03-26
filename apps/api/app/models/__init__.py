@@ -47,6 +47,12 @@ from app.models.simulation_audit import SimulationAuditEntry
 from app.models.swarm_agent import SwarmAgent
 from app.models.comm_message import CommMessage
 from app.models.validation_gate import ValidationGate
+from app.models.agent_memory import AgentMemory
+from app.models.ai_feedback import AiFeedback
+from app.models.ai_insight import AiInsight
+from app.models.finding_intelligence import FindingIntelligence
+from app.models.integration import Integration
+from app.models.prompt_registry import PromptRegistry
 
 __all__ = [
     "Tenant",
@@ -81,6 +87,12 @@ __all__ = [
     "ValidationGate",
     "SimulationAuditEntry",
     "TenantConfig",
+    "AgentMemory",
+    "AiFeedback",
+    "AiInsight",
+    "FindingIntelligence",
+    "Integration",
+    "PromptRegistry",
     "UserRole",
     "TenantPlan",
     "TenantStatus",
