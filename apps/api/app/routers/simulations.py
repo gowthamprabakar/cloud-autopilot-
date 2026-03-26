@@ -28,6 +28,23 @@ from app.services.simulation_service import (
     SimulationService,
 )
 
+
+def _safe_parse(val):
+    """Parse JSON string or return raw string."""
+    if not val:
+        return None
+    try:
+        return json.loads(val)
+    except (json.JSONDecodeError, TypeError):
+        return val  # return raw markdown/text
+
+
+def _safe_ts(val):
+    """Convert datetime to ISO string safely."""
+    if val is None:
+        return None
+    return val.isoformat() if hasattr(val, "isoformat") else str(val)
+
 router = APIRouter(prefix="/simulations", tags=["simulations"])
 
 
@@ -59,9 +76,9 @@ def _run_to_dict(run) -> dict[str, Any]:
         "total_cost_usd": run.total_cost_usd,
         "duration_seconds": run.duration_seconds,
         "error_message": run.error_message,
-        "started_at": run.started_at.isoformat() if run.started_at else None,
-        "completed_at": run.completed_at.isoformat() if run.completed_at else None,
-        "created_at": run.created_at.isoformat() if run.created_at else None,
+        "started_at": _safe_ts(run.started_at),
+        "completed_at": _safe_ts(run.completed_at),
+        "created_at": _safe_ts(run.created_at),
     }
 
 
@@ -75,12 +92,12 @@ def _agent_to_dict(agent) -> dict[str, Any]:
         "progress": agent.progress,
         "autonomy_level": agent.autonomy_level,
         "spawn_authority": agent.spawn_authority,
-        "output": json.loads(agent.output) if agent.output else None,
+        "output": _safe_parse(agent.output),
         "input_tokens": agent.input_tokens,
         "output_tokens": agent.output_tokens,
         "cost_usd": agent.cost_usd,
-        "started_at": agent.started_at.isoformat() if agent.started_at else None,
-        "completed_at": agent.completed_at.isoformat() if agent.completed_at else None,
+        "started_at": _safe_ts(agent.started_at),
+        "completed_at": _safe_ts(agent.completed_at),
     }
 
 
