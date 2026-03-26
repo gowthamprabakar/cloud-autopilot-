@@ -16,6 +16,19 @@ import {
   type ValidationGate,
 } from "@/lib/hooks/use-simulations";
 import { Spinner } from "@/components/ui/spinner";
+import { TimelineTab } from "@/components/simulation/timeline-tab";
+import { AgentSolutionTabs } from "@/components/simulation/agent-solution-tabs";
+import { FullscreenSolutionModal } from "@/components/simulation/fullscreen-solution-modal";
+import { ActionLoopSvg } from "@/components/simulation/action-loop-svg";
+import { StatusIndicator } from "@/components/ui/status-indicator";
+
+// ── Status mapping for StatusIndicator ───────────────────────────────────────
+const STATUS_TO_INDICATOR: Record<string, "standby" | "running" | "certified" | "error"> = {
+  pending:   "standby",
+  running:   "running",
+  completed: "certified",
+  failed:    "error",
+};
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
@@ -105,6 +118,7 @@ export default function SimulationsPage() {
   const [showLaunchPanel, setShowLaunchPanel] = useState(false);
   const [selectedDomain, setSelectedDomain] = useState<string>("");
   const [launching, setLaunching] = useState(false);
+  const [fullscreenContent, setFullscreenContent] = useState<string | null>(null);
 
   const { detail } = useSimulationDetail(selectedRunId);
 
@@ -209,7 +223,12 @@ export default function SimulationsPage() {
 
       <div className="p-6 space-y-6">
         {/* ── Active simulation detail ──────────────────────────────────── */}
-        {detail && <SimulationDetailView detail={detail} />}
+        {detail && (
+          <SimulationDetailView
+            detail={detail}
+            onFullscreen={setFullscreenContent}
+          />
+        )}
 
         {/* ── History table ─────────────────────────────────────────────── */}
         <HistoryTable
@@ -219,6 +238,14 @@ export default function SimulationsPage() {
           onDelete={handleDelete}
         />
       </div>
+
+      {/* ── Fullscreen solution modal ──────────────────────────────────── */}
+      {fullscreenContent && (
+        <FullscreenSolutionModal
+          content={fullscreenContent}
+          onClose={() => setFullscreenContent(null)}
+        />
+      )}
     </div>
   );
 }
@@ -227,12 +254,24 @@ export default function SimulationsPage() {
 
 function SimulationDetailView({
   detail,
+  onFullscreen,
 }: {
   detail: NonNullable<ReturnType<typeof useSimulationDetail>["detail"]>;
+  onFullscreen: (content: string) => void;
 }) {
+  const [centerTab, setCenterTab] = useState<"overview" | "timeline" | "solutions">("overview");
+
   const reportAgent = detail.agents.find(
     (a) => a.agent_id === "REPORT-01" && a.output
   );
+
+  // Determine active agent phase for ActionLoopSvg
+  const activeAgent = detail.agents.find((a) => a.status === "running");
+  const activePhase = activeAgent
+    ? (activeAgent.status === "running" ? "act" : "idle")
+    : detail.status === "running"
+    ? "observe"
+    : "idle";
 
   return (
     <div className="space-y-5">
@@ -242,6 +281,10 @@ function SimulationDetailView({
           <Shield className="h-5 w-5 text-blue-400" />
           <span className="text-lg font-semibold">{detail.domain}</span>
         </div>
+
+        {/* StatusIndicator */}
+        <StatusIndicator status={STATUS_TO_INDICATOR[detail.status] ?? "standby"} />
+
         <span
           className={cn(
             "rounded-full px-3 py-0.5 text-xs font-medium",
@@ -250,6 +293,9 @@ function SimulationDetailView({
         >
           {detail.status}
         </span>
+
+        {/* Action loop miniature */}
+        <ActionLoopSvg activePhase={activePhase} size={80} />
 
         {/* Confidence gauge */}
         <div className="flex items-center gap-2 ml-auto">
@@ -268,58 +314,99 @@ function SimulationDetailView({
         </div>
       </div>
 
-      {/* Two-column: agents + comms */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        {/* Agent roster */}
-        <div className="rounded-lg border border-slate-700 bg-slate-800 p-4">
-          <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-300 mb-3">
-            <Users className="h-4 w-4" />
-            Agent Roster ({detail.agents.length})
-          </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {detail.agents.map((agent) => (
-              <AgentCard key={agent.id} agent={agent} />
-            ))}
-          </div>
-        </div>
-
-        {/* Comm bus */}
-        <div className="rounded-lg border border-slate-700 bg-slate-800 p-4">
-          <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-300 mb-3">
-            <MessageSquare className="h-4 w-4" />
-            Comm Bus ({detail.messages.length})
-          </h3>
-          <CommBus messages={detail.messages} />
-        </div>
+      {/* ── Center-panel tab bar ─────────────────────────────────────── */}
+      <div className="flex items-center gap-1 rounded-lg border border-slate-700 bg-slate-800 p-1">
+        {(
+          [
+            { key: "overview",  label: "Overview" },
+            { key: "timeline",  label: "Timeline" },
+            { key: "solutions", label: "Solutions" },
+          ] as const
+        ).map((tab) => (
+          <button
+            key={tab.key}
+            onClick={() => setCenterTab(tab.key)}
+            className={cn(
+              "flex-1 rounded-md px-4 py-2 text-sm font-medium transition-colors",
+              centerTab === tab.key
+                ? "bg-slate-700 text-white shadow-sm"
+                : "text-slate-400 hover:text-slate-200 hover:bg-slate-700/50"
+            )}
+          >
+            {tab.label}
+          </button>
+        ))}
       </div>
 
-      {/* Validation board */}
-      <div className="rounded-lg border border-slate-700 bg-slate-800 p-4">
-        <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-300 mb-3">
-          <Trophy className="h-4 w-4" />
-          Validation Board ({detail.gates.length} gates)
-        </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-          {detail.gates.map((gate) => (
-            <GateCard key={gate.gate_number} gate={gate} />
-          ))}
-        </div>
-      </div>
+      {/* ── Tab content ──────────────────────────────────────────────── */}
 
-      {/* Solution panel */}
-      {reportAgent?.output && (
-        <div className="rounded-lg border border-slate-700 bg-slate-800 p-5">
-          <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-300 mb-3">
-            <CheckCircle2 className="h-4 w-4 text-emerald-400" />
-            Solution Report
-          </h3>
-          <div className="prose prose-invert prose-sm max-w-none text-slate-300 whitespace-pre-wrap">
-            {reportAgent.output}
+      {centerTab === "overview" && (
+        <>
+          {/* Two-column: agents + comms */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+            {/* Agent roster */}
+            <div className="rounded-lg border border-slate-700 bg-slate-800 p-4">
+              <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-300 mb-3">
+                <Users className="h-4 w-4" />
+                Agent Roster ({detail.agents.length})
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {detail.agents.map((agent) => (
+                  <AgentCard key={agent.id} agent={agent} />
+                ))}
+              </div>
+            </div>
+
+            {/* Comm bus */}
+            <div className="rounded-lg border border-slate-700 bg-slate-800 p-4">
+              <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-300 mb-3">
+                <MessageSquare className="h-4 w-4" />
+                Comm Bus ({detail.messages.length})
+              </h3>
+              <CommBus messages={detail.messages} />
+            </div>
           </div>
-        </div>
+
+          {/* Validation board */}
+          <div className="rounded-lg border border-slate-700 bg-slate-800 p-4">
+            <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-300 mb-3">
+              <Trophy className="h-4 w-4" />
+              Validation Board ({detail.gates.length} gates)
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+              {detail.gates.map((gate) => (
+                <GateCard key={gate.gate_number} gate={gate} />
+              ))}
+            </div>
+          </div>
+
+          {/* Solution panel */}
+          {reportAgent?.output && (
+            <div className="rounded-lg border border-slate-700 bg-slate-800 p-5">
+              <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-300 mb-3">
+                <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+                Solution Report
+              </h3>
+              <div className="prose prose-invert prose-sm max-w-none text-slate-300 whitespace-pre-wrap">
+                {reportAgent.output}
+              </div>
+            </div>
+          )}
+        </>
       )}
 
-      {/* Error message */}
+      {centerTab === "timeline" && (
+        <TimelineTab messages={detail.messages} />
+      )}
+
+      {centerTab === "solutions" && (
+        <AgentSolutionTabs
+          agents={detail.agents}
+          onFullscreen={(content) => onFullscreen(content)}
+        />
+      )}
+
+      {/* Error message (always visible regardless of tab) */}
       {detail.error_message && (
         <div className="flex items-start gap-3 rounded-lg border border-red-800 bg-red-900/30 p-4">
           <AlertTriangle className="h-5 w-5 text-red-400 shrink-0 mt-0.5" />
