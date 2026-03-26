@@ -38,6 +38,8 @@ from app.models.attack_path import AttackPath
 from app.models.scan_job import ScanJob
 from app.models.agent_result import AgentResult
 from app.models.agent_audit_log import AgentAuditLog
+# Sprint 32 — Multi-tenant RBAC
+from app.models.tenant_config import TenantConfig
 # OmniSec swarm agent models
 from app.models.simulation_run import SimulationRun
 from app.models.swarm_agent import SwarmAgent
@@ -75,6 +77,7 @@ __all__ = [
     "SwarmAgent",
     "CommMessage",
     "ValidationGate",
+    "TenantConfig",
     "UserRole",
     "TenantPlan",
     "TenantStatus",

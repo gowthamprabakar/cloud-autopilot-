@@ -5,7 +5,7 @@ import {
   Shield, LayoutDashboard, AlertTriangle, CloudCog,
   CheckSquare, LogOut, Settings, ChevronRight, Users2, ClipboardList,
   ShieldOff, BarChart3, KeyRound, Webhook, ClipboardCheck, SlidersHorizontal,
-  Plug, Mail, ShieldCheck, Network, TrendingUp, UserCog, Bug, Radar, Route, Sparkles, GitCompare, Building2, Atom, Brain, type LucideIcon
+  Plug, Mail, ShieldCheck, Network, TrendingUp, UserCog, Bug, Radar, Route, Sparkles, GitCompare, Building2, Atom, Brain, Download, type LucideIcon
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/hooks/use-auth";
@@ -38,12 +38,15 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/dashboard/audit",       label: "Audit Log",    icon: ClipboardList },
   { href: "/dashboard/suppression", label: "Suppression",  icon: ShieldOff },
   { href: "/dashboard/reports",     label: "Reports",      icon: BarChart3 },
+  { href: "/dashboard/exports",    label: "Exports",      icon: Download,  roles: ["admin", "super_admin", "analyst"] },
   { href: "/dashboard/settings",    label: "Settings",     icon: Settings },
   { href: "/dashboard/settings/api-keys", label: "API Keys",  icon: KeyRound,         roles: ["admin", "super_admin"] },
   { href: "/dashboard/settings/webhooks", label: "Webhooks",  icon: Webhook,           roles: ["admin", "super_admin"] },
   { href: "/dashboard/remediation",       label: "Remediation", icon: ClipboardCheck },
   { href: "/dashboard/settings/workspace",     label: "Workspace",         icon: SlidersHorizontal, roles: ["admin", "super_admin"] },
+  { href: "/dashboard/settings/tenant",      label: "Tenant Admin",      icon: Building2,         roles: ["admin", "super_admin"] },
   { href: "/dashboard/settings/integrations", label: "Integrations",      icon: Plug,              roles: ["admin", "super_admin"] },
+  { href: "/dashboard/settings/integration-hub", label: "Integration Hub", icon: Plug,             roles: ["admin", "super_admin"] },
   { href: "/dashboard/settings/email",        label: "Email",             icon: Mail },
   { href: "/dashboard/settings/prompts",     label: "AI Prompts",        icon: Sparkles,          roles: ["admin", "super_admin"] },
   { href: "/dashboard/settings/security",     label: "Security",          icon: ShieldCheck },

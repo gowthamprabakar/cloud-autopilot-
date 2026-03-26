@@ -16,7 +16,7 @@ from apscheduler.triggers.cron import CronTrigger
 
 from app.core.config import settings
 from app.core.logging import configure_logging
-from app.routers import ai, agent, api_keys, attack_paths, audit_log, auth, aws_accounts, ciem, compliance, detections, domains, drift, email_digest, executive, findings, graph, health, infra_health, intelligence, memory, notifications, portfolio, prompt_registry, reports, scanner, simulations, suppression, totp, users, vulns, webhooks, workspaces, workspace_settings, sla, jira, onboarding, security_graph
+from app.routers import ai, agent, api_keys, attack_paths, audit_log, auth, aws_accounts, ciem, compliance, detections, domains, drift, email_digest, executive, exports, findings, graph, health, infra_health, integration_hub, intelligence, memory, notifications, portfolio, prompt_registry, reports, scanner, simulations, suppression, tenant_admin, totp, users, vulns, webhooks, workspaces, workspace_settings, sla, jira, onboarding, security_graph
 
 configure_logging()
 logger = structlog.get_logger(__name__)
@@ -211,6 +211,12 @@ app.include_router(graph.router, prefix="/api/v1")
 app.include_router(infra_health.router, prefix="/api/v1")
 # Sprint 31 — Agent Memory (Zep-compatible)
 app.include_router(memory.router, prefix="/api/v1")
+# Sprint 32 — Multi-tenant RBAC + Tenant Admin
+app.include_router(tenant_admin.router, prefix="/api/v1")
+# Sprint 32 — Simulation Report Export
+app.include_router(exports.router, prefix="/api/v1")
+# Sprint 32 — Integration Hub (Slack, Jira, PagerDuty, SIEM, GitHub, GitLab)
+app.include_router(integration_hub.router, prefix="/api/v1")
 
 # Phase 4+ will add:
 # app.include_router(workflows.router,    prefix="/api/v1")
