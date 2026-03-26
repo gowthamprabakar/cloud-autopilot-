@@ -42,6 +42,8 @@ from app.models.agent_audit_log import AgentAuditLog
 from app.models.tenant_config import TenantConfig
 # OmniSec swarm agent models
 from app.models.simulation_run import SimulationRun
+# Sprint 34 — Immutable audit trail
+from app.models.simulation_audit import SimulationAuditEntry
 from app.models.swarm_agent import SwarmAgent
 from app.models.comm_message import CommMessage
 from app.models.validation_gate import ValidationGate
@@ -77,6 +79,7 @@ __all__ = [
     "SwarmAgent",
     "CommMessage",
     "ValidationGate",
+    "SimulationAuditEntry",
     "TenantConfig",
     "UserRole",
     "TenantPlan",

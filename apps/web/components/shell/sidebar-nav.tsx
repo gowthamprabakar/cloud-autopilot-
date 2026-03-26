@@ -5,7 +5,7 @@ import {
   Shield, LayoutDashboard, AlertTriangle, CloudCog,
   CheckSquare, LogOut, Settings, ChevronRight, Users2, ClipboardList,
   ShieldOff, BarChart3, KeyRound, Webhook, ClipboardCheck, SlidersHorizontal,
-  Plug, Mail, ShieldCheck, Network, TrendingUp, UserCog, Bug, Radar, Route, Sparkles, GitCompare, Building2, Atom, Brain, Download, type LucideIcon
+  Plug, Mail, ShieldCheck, Network, TrendingUp, UserCog, Bug, Radar, Route, Sparkles, GitCompare, Building2, Atom, Brain, Download, Clock, type LucideIcon
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/hooks/use-auth";
@@ -30,6 +30,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/dashboard/findings",        label: "Findings",        icon: AlertTriangle },
   { href: "/dashboard/security-graph", label: "Security Graph",   icon: Network, roles: ["admin", "super_admin", "analyst"] },
   { href: "/dashboard/attack-paths", label: "Attack Paths", icon: Route, roles: ["admin", "super_admin", "analyst"] },
+  { href: "/dashboard/mitre", label: "MITRE ATT&CK", icon: Shield, roles: ["admin", "super_admin", "analyst"] },
   { href: "/dashboard/graph-explorer", label: "Graph Explorer", icon: Network, roles: ["admin", "super_admin", "analyst"] },
   { href: "/dashboard/drift", label: "Drift", icon: GitCompare, roles: ["admin", "super_admin", "analyst"] },
   { href: "/dashboard/agent-memory", label: "Agent Memory", icon: Brain, roles: ["admin", "super_admin", "analyst"] },
@@ -38,6 +39,8 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/dashboard/compliance",      label: "Compliance",       icon: CheckSquare },
   { href: "/dashboard/team",       label: "Team",         icon: Users2 },
   { href: "/dashboard/audit",       label: "Audit Log",    icon: ClipboardList },
+  { href: "/dashboard/audit-trail", label: "Sim Audit",    icon: ClipboardList, roles: ["admin", "super_admin"] },
+  { href: "/dashboard/session-history", label: "Sim History", icon: Clock, roles: ["admin", "super_admin", "analyst"] },
   { href: "/dashboard/suppression", label: "Suppression",  icon: ShieldOff },
   { href: "/dashboard/reports",     label: "Reports",      icon: BarChart3 },
   { href: "/dashboard/exports",    label: "Exports",      icon: Download,  roles: ["admin", "super_admin", "analyst"] },
