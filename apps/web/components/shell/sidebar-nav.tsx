@@ -5,7 +5,7 @@ import {
   Shield, LayoutDashboard, AlertTriangle, CloudCog,
   CheckSquare, LogOut, Settings, ChevronRight, Users2, ClipboardList,
   ShieldOff, BarChart3, KeyRound, Webhook, ClipboardCheck, SlidersHorizontal,
-  Plug, Mail, ShieldCheck, Network, TrendingUp, UserCog, Bug, Radar, Route, Sparkles, GitCompare, Building2, Atom, Brain, Download, Clock, type LucideIcon
+  Plug, Mail, ShieldCheck, Network, TrendingUp, UserCog, Bug, Radar, Route, Sparkles, GitCompare, Building2, Atom, Brain, Download, Clock, Server, Database, Globe, Factory, Bot, KeySquare, Scan, Cpu, Diamond, Zap, type LucideIcon
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/hooks/use-auth";
@@ -34,6 +34,18 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/dashboard/graph-explorer", label: "Graph Explorer", icon: Network, roles: ["admin", "super_admin", "analyst"] },
   { href: "/dashboard/drift", label: "Drift", icon: GitCompare, roles: ["admin", "super_admin", "analyst"] },
   { href: "/dashboard/agent-memory", label: "Agent Memory", icon: Brain, roles: ["admin", "super_admin", "analyst"] },
+  { href: "/dashboard/wiz-coverage", label: "Wiz Coverage", icon: Diamond, roles: ["admin", "super_admin", "analyst"] },
+  { href: "/dashboard/gap-domains", label: "Gap Domains", icon: Zap, roles: ["admin", "super_admin", "analyst"] },
+  { href: "/dashboard/modules/cwpp", label: "CWPP", icon: Server, roles: ["admin", "super_admin", "analyst"] },
+  { href: "/dashboard/modules/dspm", label: "DSPM", icon: Database, roles: ["admin", "super_admin", "analyst"] },
+  { href: "/dashboard/modules/kspm", label: "KSPM", icon: Cpu, roles: ["admin", "super_admin", "analyst"] },
+  { href: "/dashboard/modules/asm", label: "ASM", icon: Globe, roles: ["admin", "super_admin", "analyst"] },
+  { href: "/dashboard/modules/quantum", label: "Quantum", icon: Scan, roles: ["admin", "super_admin", "analyst"] },
+  { href: "/dashboard/modules/deepfake", label: "Deepfake", icon: Bot, roles: ["admin", "super_admin", "analyst"] },
+  { href: "/dashboard/modules/supply-chain", label: "Supply Chain", icon: KeySquare, roles: ["admin", "super_admin", "analyst"] },
+  { href: "/dashboard/modules/ot-ics", label: "OT/ICS", icon: Factory, roles: ["admin", "super_admin", "analyst"] },
+  { href: "/dashboard/modules/llmjacking", label: "LLMjacking", icon: Bot, roles: ["admin", "super_admin", "analyst"] },
+  { href: "/dashboard/modules/fedid", label: "Federated ID", icon: KeySquare, roles: ["admin", "super_admin", "analyst"] },
   { href: "/dashboard/portfolio", label: "Portfolio", icon: Building2, roles: ["admin", "super_admin"] },
   { href: "/dashboard/accounts",        label: "AWS Accounts",     icon: CloudCog },
   { href: "/dashboard/compliance",      label: "Compliance",       icon: CheckSquare },
@@ -54,6 +66,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/dashboard/settings/integration-hub", label: "Integration Hub", icon: Plug,             roles: ["admin", "super_admin"] },
   { href: "/dashboard/settings/email",        label: "Email",             icon: Mail },
   { href: "/dashboard/settings/prompts",     label: "AI Prompts",        icon: Sparkles,          roles: ["admin", "super_admin"] },
+  { href: "/dashboard/settings/simulation", label: "Sim Config",        icon: Atom,              roles: ["admin", "super_admin"] },
   { href: "/dashboard/settings/security",     label: "Security",          icon: ShieldCheck },
   { href: "/dashboard/settings/reports",      label: "Scheduled Reports", icon: BarChart3,          roles: ["admin", "super_admin"] },
 ];

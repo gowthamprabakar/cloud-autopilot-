@@ -48,3 +48,24 @@
 .severity-medium   { @apply bg-amber-100 text-amber-700 border-amber-200; }
 .severity-low      { @apply bg-lime-100 text-lime-700 border-lime-200; }
 .severity-info     { @apply bg-gray-100 text-gray-600 border-gray-200; }
+
+/* OmniSec Enterprise Fonts */
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Bebas+Neue&display=swap');
+
+/* Scanline overlay effect */
+.scanline-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 255, 255, 0.02) 2px,
+    rgba(0, 255, 255, 0.02) 4px
+  );
+}
+
+.font-mono-ibm { font-family: 'IBM Plex Mono', monospace; }
+.font-display { font-family: 'Bebas Neue', sans-serif; }
