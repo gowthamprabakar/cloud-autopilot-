@@ -5,7 +5,7 @@ import {
   Shield, LayoutDashboard, AlertTriangle, CloudCog,
   CheckSquare, LogOut, Settings, ChevronRight, Users2, ClipboardList,
   ShieldOff, BarChart3, KeyRound, Webhook, ClipboardCheck, SlidersHorizontal,
-  Plug, Mail, ShieldCheck, Network, TrendingUp, UserCog, Bug, Radar, Route, Sparkles, GitCompare, Building2, Atom, type LucideIcon
+  Plug, Mail, ShieldCheck, Network, TrendingUp, UserCog, Bug, Radar, Route, Sparkles, GitCompare, Building2, Atom, Brain, type LucideIcon
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/hooks/use-auth";
@@ -28,7 +28,9 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/dashboard/findings",        label: "Findings",        icon: AlertTriangle },
   { href: "/dashboard/security-graph", label: "Security Graph",   icon: Network, roles: ["admin", "super_admin", "analyst"] },
   { href: "/dashboard/attack-paths", label: "Attack Paths", icon: Route, roles: ["admin", "super_admin", "analyst"] },
+  { href: "/dashboard/graph-explorer", label: "Graph Explorer", icon: Network, roles: ["admin", "super_admin", "analyst"] },
   { href: "/dashboard/drift", label: "Drift", icon: GitCompare, roles: ["admin", "super_admin", "analyst"] },
+  { href: "/dashboard/agent-memory", label: "Agent Memory", icon: Brain, roles: ["admin", "super_admin", "analyst"] },
   { href: "/dashboard/portfolio", label: "Portfolio", icon: Building2, roles: ["admin", "super_admin"] },
   { href: "/dashboard/accounts",        label: "AWS Accounts",     icon: CloudCog },
   { href: "/dashboard/compliance",      label: "Compliance",       icon: CheckSquare },

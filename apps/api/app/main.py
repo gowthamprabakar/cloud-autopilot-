@@ -16,7 +16,7 @@ from apscheduler.triggers.cron import CronTrigger
 
 from app.core.config import settings
 from app.core.logging import configure_logging
-from app.routers import ai, agent, api_keys, attack_paths, audit_log, auth, aws_accounts, ciem, compliance, detections, domains, drift, email_digest, executive, findings, health, intelligence, notifications, portfolio, prompt_registry, reports, scanner, simulations, suppression, totp, users, vulns, webhooks, workspaces, workspace_settings, sla, jira, onboarding, security_graph
+from app.routers import ai, agent, api_keys, attack_paths, audit_log, auth, aws_accounts, ciem, compliance, detections, domains, drift, email_digest, executive, findings, graph, health, infra_health, intelligence, memory, notifications, portfolio, prompt_registry, reports, scanner, simulations, suppression, totp, users, vulns, webhooks, workspaces, workspace_settings, sla, jira, onboarding, security_graph
 
 configure_logging()
 logger = structlog.get_logger(__name__)
@@ -119,6 +119,9 @@ async def lifespan(app: FastAPI):
     yield
     if scheduler.running:
         scheduler.shutdown()
+    # Sprint 31 — close Neo4j driver
+    from app.core.neo4j_client import close_neo4j
+    await close_neo4j()
     logger.info("shutdown")
 
 
@@ -202,6 +205,12 @@ app.include_router(drift.router, prefix="/api/v1")
 app.include_router(simulations.router, prefix="/api/v1")
 # Sprint 30 — Domains & Agent Spawning
 app.include_router(domains.router, prefix="/api/v1")
+# Sprint 31 — Neo4j Graph
+app.include_router(graph.router, prefix="/api/v1")
+# Sprint 31 — Infrastructure Health & Metrics
+app.include_router(infra_health.router, prefix="/api/v1")
+# Sprint 31 — Agent Memory (Zep-compatible)
+app.include_router(memory.router, prefix="/api/v1")
 
 # Phase 4+ will add:
 # app.include_router(workflows.router,    prefix="/api/v1")
